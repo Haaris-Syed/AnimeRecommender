@@ -1,0 +1,9 @@
+content based filtering:
+- get all the features we want (synopsis, genre, rating)
+- preprocess/clean the data in features (drop null values etc.)
+
+- use Tfid vectorizer on the synopsis and genre features
+    - rating will be treated separately 
+- calculate cosine similarity of the above feature vectorizer
+
+- features with numeric data types (rating, episodes, members) will be weighted separately 
