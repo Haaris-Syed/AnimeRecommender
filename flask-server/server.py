@@ -162,7 +162,7 @@ def normalise_values(column, maxVal, weight):
 
     return norm_values
 
-@app.route("/normalised")
+# @app.route("/normalised")
 def get_normalised_df():#anime_df
     normalised_anime_df = pd.read_csv("../datasets/animes.csv") 
     normalised_anime_df = clean_anime_df(normalised_anime_df)
@@ -243,6 +243,14 @@ def get_cb_recs():
     cosine_similarities = calculate_cosine_similarity(normalised_anime_df, genres_df)
 
     return content_based_recommendations("Death Note", cosine_similarities, anime_df)
+
+
+# ============ Collaborative filtering ============
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
