@@ -14,6 +14,18 @@ import itertools
 app = Flask(__name__)
 
 # ============ Generic Helper Functions ============
+def text_cleaning(text):
+    text = re.sub(r'&quot;', '', text)
+    text  = "".join([char for char in text if char not in string.punctuation])
+    text = re.sub(r'.hack//', '', text)
+    text = re.sub(r'&#039;', '', text)
+    text = re.sub(r'A&#039;s', '', text)
+    text = re.sub(r'I&#039;', 'I\'', text)
+    text = re.sub(r'&amp;', 'and', text)
+    text = re.sub(r'Â°', '',text)
+
+    return text
+
 def process_anime_df():
     anime_df = pd.read_csv("../datasets/animes.csv")
 
@@ -65,18 +77,6 @@ def process_ratings_df():
 
     return user_ratings_df
 
-def text_cleaning(text):
-    text = re.sub(r'&quot;', '', text)
-    text  = "".join([char for char in text if char not in string.punctuation])
-    text = re.sub(r'.hack//', '', text)
-    text = re.sub(r'&#039;', '', text)
-    text = re.sub(r'A&#039;s', '', text)
-    text = re.sub(r'I&#039;', 'I\'', text)
-    text = re.sub(r'&amp;', 'and', text)
-    text = re.sub(r'Â°', '',text)
-
-    return text
-
 def get_merged_df(anime_df, user_ratings_df): 
     anime_with_ratings_df = pd.merge(anime_df, user_ratings_df, on='anime_id')
 
@@ -85,6 +85,71 @@ def get_merged_df(anime_df, user_ratings_df):
 
     return anime_with_ratings_df
 
+def get_genre_df(normalised_anime_df):
+    weights = {
+        'genre': 0.35,
+        'members_norm': 0.1,
+        'rating_norm': 0.35,
+        'popularity_norm': 0.1,
+        'episodes_norm': 0.1
+    }
+
+    genres_df = normalised_anime_df['genre'].str.get_dummies(sep=', ').astype(int)
+    genres_df = genres_df.apply(lambda x : x * weights['genre'])
+
+    return genres_df
+
+def get_normalised_df():
+    global anime_df
+
+    normalised_anime_df = anime_df.copy()
+
+    weights = set_feature_weights()
+
+    normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * weights['members_norm']
+    normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * weights['rating_norm']
+    normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * weights['popularity_norm']
+    normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * weights['episodes_norm']
+    
+    normalised_anime_df.drop(['members', 'rating', 'popularity', 'episodes'], axis=1, inplace=True)
+    
+    # # get hot encoding of genres and merge with our main df
+    genres_df = get_genre_df(normalised_anime_df)
+
+    # normalised_anime_df.drop('genre', axis=1, inplace=True)
+    normalised_anime_df = pd.concat([normalised_anime_df, genres_df], axis=1)
+
+    return normalised_anime_df
+
+def set_feature_weights():#pass in values given by the user on the website
+    feature_weights = {
+    'genre': 0.35,
+    'members_norm': 0.1,
+    'rating_norm': 0.35,
+    'popularity_norm': 0.1,
+    'episodes_norm': 0.1
+    }
+
+    return feature_weights
+
+def set_rating_weights(): #pass in values given by the user on the website
+    rating_weights = {
+    'overall_weight' : 0.5, 
+    'story_weight' : 0.1, 
+    'animation_weight' : 0.1,
+    'sound_weight' : 0.1,
+    'character_weight': 0.1,
+    'enjoyment_weight' : 0.1,
+    }
+
+    return rating_weights
+
+def calculate_cosine_similarity(normalised_anime_df, genres_df):
+    features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
+
+    cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
+
+    return cosine_sim
 # ============ Declaring global dataframes ============
 # def generate_global_dataframes():
 #     global anime_df, user_ratings_df, anime_with_ratings_df
@@ -96,21 +161,40 @@ def get_merged_df(anime_df, user_ratings_df):
 #     user_ratings_df = get_user_ratings_df()
 #     anime_with_ratings_df = get_merged_df()
 
-anime_df = process_anime_df()
-user_ratings_df = process_ratings_df()
-anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+# these are values/dataframes that will not change in future, so declaring them now
+# will save computation time later
+# anime_df = process_anime_df()
+# user_ratings_df = process_ratings_df()
+# anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+# normalised_anime_df = get_normalised_df()
+# genres_df = get_genre_df(normalised_anime_df)
+# cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+
+overall_pivot = None
+story_pivot = None
+animation_pivot = None
+sound_pivot = None
+character_pivot = None
+enjoyment_pivot = None
+
+overall_similarities_df = None
+story_similarities_df = None
+animation_similarities_df = None
+sound_similarities_df = None
+character_similarities_df = None
+enjoyment_similarities_df = None
 
 combined_category_ratings_pivot = None
 
-@app.route("/get_anime_df")
-def get_anime_df():
-    global anime_df
-    return anime_df
+# @app.route("/get_anime_df")
+# def get_anime_df():
+#     global anime_df
+#     return anime_df
 
-@app.route("/get_ratings_df")
-def get_ratings_df():
-    global user_ratings_df
-    return user_ratings_df
+# @app.route("/get_ratings_df")
+# def get_ratings_df():
+#     global user_ratings_df
+#     return user_ratings_df
 
 # used in both content-based and collaborative filtering
 # removes anime titles of repeating seasons to diversify the recommendations
@@ -146,74 +230,8 @@ def get_unique_recommendations(anime_titles):
 
     return unique_titles
 
-def set_feature_weights():#pass in values given by the user on the website
-    feature_weights = {
-    'genre': 0.35,
-    'members_norm': 0.1,
-    'rating_norm': 0.35,
-    'popularity_norm': 0.1,
-    'episodes_norm': 0.1
-    }
-
-    return feature_weights
-
-def set_rating_weights(): #pass in values given by the user on the website
-    rating_weights = {
-    'overall_weight' : 0.5, 
-    'story_weight' : 0.1, 
-    'animation_weight' : 0.1,
-    'sound_weight' : 0.1,
-    'character_weight': 0.1,
-    'enjoyment_weight' : 0.1,
-    }
-
-    return rating_weights
-
 # ============ Content based filtering ============
 
-def get_genre_df(normalised_anime_df):
-    weights = {
-        'genre': 0.35,
-        'members_norm': 0.1,
-        'rating_norm': 0.35,
-        'popularity_norm': 0.1,
-        'episodes_norm': 0.1
-    }
-
-    genres_df = normalised_anime_df['genre'].str.get_dummies(sep=', ').astype(int)
-    genres_df = genres_df.apply(lambda x : x * weights['genre'])
-
-    return genres_df
-
-# @app.route("/normalised")
-def get_normalised_df():
-    global anime_df
-
-    normalised_anime_df = anime_df.copy()
-
-    weights = set_feature_weights()
-
-    normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * weights['members_norm']
-    normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * weights['rating_norm']
-    normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * weights['popularity_norm']
-    normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * weights['episodes_norm']
-    
-    normalised_anime_df.drop(['members', 'rating', 'popularity', 'episodes'], axis=1, inplace=True)
-    
-    # # get hot encoding of genres and merge with our main df
-    genres_df = get_genre_df(normalised_anime_df)
-
-    # normalised_anime_df.drop('genre', axis=1, inplace=True)
-    normalised_anime_df = pd.concat([normalised_anime_df, genres_df], axis=1)
-
-    return normalised_anime_df
-
-def calculate_cosine_similarity(normalised_anime_df, genres_df):
-    features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
-
-    cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
-
-    return cosine_sim
 
 def content_based_recommendations(title, cosine_sim, n_recommendations=100):
     global anime_df
@@ -247,14 +265,9 @@ def content_based_recommendations(title, cosine_sim, n_recommendations=100):
 
 @app.route("/get_cb_recs")
 def get_cb_recs(anime_title):
-    global user_ratings_df 
+    global normalised_anime_df, genres_df, cb_cosine_similarity
 
-    normalised_anime_df = get_normalised_df()
-    genres_df = get_genre_df(normalised_anime_df)
-
-    cosine_similarities = calculate_cosine_similarity(normalised_anime_df, genres_df)
-
-    return content_based_recommendations(anime_title, cosine_similarities)
+    return content_based_recommendations(anime_title, cb_cosine_similarity)
 
 
 # ============ Collaborative filtering ============
@@ -265,12 +278,14 @@ def create_pivot_table(data, value):
 
     return pivot_table
 
+# only need to calculate once for each ratings pivot table
 def calculate_similarities(pivot_table):
     similarities = cosine_similarity(pivot_table.T)
     similarities_df = pd.DataFrame(similarities, index=pivot_table.columns, columns=pivot_table.columns)
 
     return similarities_df
 
+# only need to calculate once
 def create_pivots_for_rating_categories():
     global anime_with_ratings_df
 
@@ -283,6 +298,7 @@ def create_pivots_for_rating_categories():
 
     return overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot
 
+# only need to calculate once
 def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot):
 
     overall_similarities_df = calculate_similarities(overall_pivot)
@@ -294,6 +310,7 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
 
     return overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df
 
+# only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
 animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df):
     rating_weights = set_rating_weights()
@@ -317,17 +334,17 @@ def collaborative_filtering_recommendations(anime, combined_category_ratings_piv
 
 @app.route("/get_cf_recs")
 def get_cf_recs(anime_title):
-    global anime_df, combined_category_ratings_pivot
+    global combined_category_ratings_pivot
 
-    overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot = create_pivots_for_rating_categories()
+    # overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot = create_pivots_for_rating_categories()
     
-    overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
-    animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
+    # overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    # animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
 
-    combined_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-    animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
+    # combined_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    # animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
 
-    combined_category_ratings_pivot = combined_ratings_pivot
+    # combined_category_ratings_pivot = combined_ratings_pivot
 
     return collaborative_filtering_recommendations(anime_title, combined_category_ratings_pivot)
 
@@ -368,11 +385,40 @@ def combined_recommendations(anime_name, num_recommendations=50, content_weight=
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
     # 3mins 30seconds to execute
-    return combined_recommendations('Shingeki no Kyojin')
+    return combined_recommendations('Death Note')
 
+def load_data():
+    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity
+    # global overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot
+    # global overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df
+    global combined_category_ratings_pivot
+    
+    anime_df = process_anime_df()
+    user_ratings_df = process_ratings_df()
+    anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+    normalised_anime_df = get_normalised_df()
+    genres_df = get_genre_df(normalised_anime_df)
+    cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
 
+    print("CB Done")
+
+    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
+    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
+    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
+    sound_pivot = create_pivot_table(anime_with_ratings_df, 'Sound')
+    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
+    enjoyment_pivot = create_pivot_table(anime_with_ratings_df, 'Enjoyment')
+    print("Pivots Done")
+    overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
+    print("Similarities df Done")
+    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
+
+    print("Data Loaded")
 
 if __name__ == "__main__":
+    load_data()
     app.run(debug=True)
 
 
