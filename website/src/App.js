@@ -1,37 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 function App() {
-  // const [animeIsLoading, setAnimeIsLoading] = useState(true);
-  // const [anime, setAnime] = useState([{}]);
-
-  // const [ratingsIsLoading, setRatingsIsLoading] = useState(true);
-  // const [userRatings, setUserRatings] = useState([{}]);
-
-  // const [contentRecommendationsIsLoading, setContentRecommendationsIsLoading] = useState(true);
-  // const [contentRecommendations, setContentRecommendations] = useState([{}]);
-
   const [recommendationsIsLoading, setRecommendationsIsLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([{}]);
-
-  // useEffect(() => {
-  //   fetch("/get_anime_df")
-  //     .then((res) => res.json())
-  //     .then((anime) => {
-  //       setAnime(anime);
-  //       setAnimeIsLoading(false);
-  //       console.log(anime);
-  //     });
-  // }, []);
-
-  // useEffect(() => {
-  //   fetch("/get_ratings_df")
-  //     .then((res) => res.json())
-  //     .then((userRatings) => {
-  //       setUserRatings(userRatings);
-  //       setRatingsIsLoading(false);
-  //       console.log(userRatings);
-  //     });
-  // }, []);
 
   useEffect(() => {
     fetch("/get_hybrid_recs").then(
@@ -44,6 +15,21 @@ function App() {
     });
   }, []);
 
+  return (
+      <div className="wrapper">
+        {/* <div> */}
+          {recommendationsIsLoading ? <p>Loading Recommendations...</p> : (
+            recommendations.map((anime_title) => (
+              // <p key={anime_title.toString()}>{anime_title}</p>
+            <AnimeCard key={anime_title.toString()}
+              title={anime_title}
+            />
+            ))
+          )}
+        {/* </div> */}
+        
+      </div>
+    );
   // useEffect(() => {
   //   async function fetchAnimeData() {
   //     const response = await fetch("/get_anime_df");
@@ -67,41 +53,24 @@ function App() {
   //   console.log(userRatings);
   // }, []);
 
-  // const animeList = anime.map((anime_title) => {
-  //   <p key={anime_title.toString()}>{anime_title}</p>;
-  // });
+  
+}
 
-  // const ratingsList = userRatings.map((rating) => {
-  //   <p key={rating.toString()}>{rating}</p>;
-  // });
-
-  return (
-    <div>
-      <div>
-        {recommendationsIsLoading ? <p>Loading Recommendations...</p> : (
-          recommendations.map((anime_title) => (
-            <p key={anime_title.toString()}>{anime_title}</p>
-          ))
-        )}
+function AnimeCard(props){
+  return(
+    <div className="card">
+      <div className="card_body">
+        {/* <img /> */}
+        <h2 className="card_title">
+          {props.title}
+          <p className="card_description">
+            {props.description}
+          </p>
+        </h2>
       </div>
-      {/* <div>
-        {animeIsLoading ? <p>Loading Anime...</p> : (
-          anime.map((anime_title) => (
-            <p key={anime_title.toString()}>{anime_title}</p>
-          ))
-        )}
-      </div> */}
-      {/* <div>
-        {ratingsIsLoading ? <p>Loading Ratings...</p> : (
-          userRatings.map((rating, index) => (
-            <p key={`${rating}-${index}`}>{rating}</p>
-            // the above will give unique IDs in the form of '8-1'
-            // rating = 8, index = 1, separated by a hypon
-          ))
-        )}
-      </div> */}
+      <button className="card_button">View Anime</button>
     </div>
-  );
+  )
 }
 
 export default App;
