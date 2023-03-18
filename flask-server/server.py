@@ -13,11 +13,8 @@ import itertools
 
 app = Flask(__name__)
 
-# global anime_df, user_ratings_df, anime_with_ratings_df
-
 # ============ Generic Helper Functions ============
-@app.route("/get_anime_df")
-def get_anime_df():
+def process_anime_df():
     anime_df = pd.read_csv("../datasets/animes.csv")
 
     # reformat dataframe: removing NaN values and renaming columns, etc.
@@ -40,8 +37,7 @@ def get_anime_df():
 
     return anime_df
 
-@app.route("/get_user_ratings_df")
-def get_user_ratings_df():
+def process_ratings_df():
     user_ratings_df = pd.read_csv("../datasets/reviews.csv")
 
     user_ratings_df.drop(['link', 'text'], axis=1, inplace=True)
@@ -81,63 +77,7 @@ def text_cleaning(text):
 
     return text
 
-@app.route("/clean_anime_df")
-def clean_anime_df(anime_dataframe):
-    # reformat dataframe: removing NaN values and renaming columns, etc.
-    anime_dataframe.rename(columns={'title': 'name'}, inplace=True)
-    anime_dataframe.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
-    
-    anime_dataframe['name'] = anime_dataframe['name'].apply(text_cleaning)
-
-    anime_dataframe.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
-    anime_dataframe.episodes.replace({'Unknown':np.nan},inplace=True)
-
-    anime_dataframe.drop_duplicates(subset=['name'], inplace=True)
-    anime_dataframe.dropna(inplace=True)
-    anime_dataframe.reset_index(drop=True, inplace=True)
-
-    # replace the characters "[]'" with an empty space as the genre column is already of type string
-    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("'", "", regex=False)
-    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("[", "", regex=False)
-    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("]", "", regex=False)
-
-    return anime_dataframe
-
-@app.route("/clean_user_ratings_df")
-def clean_user_ratings_df(ratings_dataframe):
-
-    ratings_dataframe.drop(['link', 'text'], axis=1, inplace=True)
-    ratings_dataframe.rename(columns={'profile': 'user_id'}, inplace=True)
-
-    # turn user profile names (strings) into user ids (integers)
-    ratings_dataframe.user_id = pd.factorize(ratings_dataframe.user_id)[0]
-
-    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("'", "", regex=False)
-    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("{", "", regex=False)
-    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("}", "", regex=False)
-    ratings_dataframe['scores'] = [re.sub("[^0-9,]", "", anime) for anime in ratings_dataframe['scores']]
-
-    # separate the ratings dictionary into separate columns
-    category_ratings_df = ratings_dataframe['scores'].str.split(",", expand=True)
-    category_ratings_df.columns = ['Overall', 'Story', 'Animation','Sound', 'Character', 'Enjoyment']
-
-    # Finalise the user_ratings_df
-    ratings_dataframe = pd.concat([ratings_dataframe, category_ratings_df], axis=1)
-    ratings_dataframe.drop(columns=['score', 'scores', 'uid'], inplace=True)
-    ratings_dataframe.rename(columns={"anime_uid": "anime_id"}, inplace=True)
-
-    ratings_dataframe[['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']] = ratings_dataframe[
-    ['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']].apply(pd.to_numeric)
-
-    return ratings_dataframe
-
-def get_merged_df(): #anime_df, user_ratings_df
-    anime_df = pd.read_csv("../datasets/animes.csv")
-    anime_df = clean_anime_df(anime_df)
-
-    user_ratings_df = pd.read_csv("../datasets/reviews.csv")
-    user_ratings_df = clean_user_ratings_df(user_ratings_df)
-
+def get_merged_df(anime_df, user_ratings_df): 
     anime_with_ratings_df = pd.merge(anime_df, user_ratings_df, on='anime_id')
 
     anime_with_ratings_df.drop_duplicates(subset=['user_id', 'name'], inplace=True)
@@ -156,10 +96,21 @@ def get_merged_df(): #anime_df, user_ratings_df
 #     user_ratings_df = get_user_ratings_df()
 #     anime_with_ratings_df = get_merged_df()
 
-anime_df = get_anime_df()
-user_ratings_df = get_user_ratings_df()
-anime_with_ratings_df = get_merged_df()
+anime_df = process_anime_df()
+user_ratings_df = process_ratings_df()
+anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+
 combined_category_ratings_pivot = None
+
+@app.route("/get_anime_df")
+def get_anime_df():
+    global anime_df
+    return anime_df
+
+@app.route("/get_ratings_df")
+def get_ratings_df():
+    global user_ratings_df
+    return user_ratings_df
 
 # used in both content-based and collaborative filtering
 # removes anime titles of repeating seasons to diversify the recommendations
@@ -416,7 +367,8 @@ def combined_recommendations(anime_name, num_recommendations=50, content_weight=
 
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
-    return combined_recommendations('Death Note')
+    # 3mins 30seconds to execute
+    return combined_recommendations('Shingeki no Kyojin')
 
 
 

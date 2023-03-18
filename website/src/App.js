@@ -1,43 +1,46 @@
 import React, { useState, useEffect } from "react";
 
 function App() {
-  const [animeIsLoading, setAnimeIsLoading] = useState(true);
-  const [anime, setAnime] = useState([{}]);
+  // const [animeIsLoading, setAnimeIsLoading] = useState(true);
+  // const [anime, setAnime] = useState([{}]);
 
-  const [ratingsIsLoading, setRatingsIsLoading] = useState(true);
-  const [userRatings, setUserRatings] = useState([{}]);
+  // const [ratingsIsLoading, setRatingsIsLoading] = useState(true);
+  // const [userRatings, setUserRatings] = useState([{}]);
 
-  const [contentRecommendationsIsLoading, setContentRecommendationsIsLoading] = useState(true);
-  const [contentRecommendations, setContentRecommendations] = useState([{}]);
+  // const [contentRecommendationsIsLoading, setContentRecommendationsIsLoading] = useState(true);
+  // const [contentRecommendations, setContentRecommendations] = useState([{}]);
+
+  const [recommendationsIsLoading, setRecommendationsIsLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState([{}]);
+
+  // useEffect(() => {
+  //   fetch("/get_anime_df")
+  //     .then((res) => res.json())
+  //     .then((anime) => {
+  //       setAnime(anime);
+  //       setAnimeIsLoading(false);
+  //       console.log(anime);
+  //     });
+  // }, []);
+
+  // useEffect(() => {
+  //   fetch("/get_ratings_df")
+  //     .then((res) => res.json())
+  //     .then((userRatings) => {
+  //       setUserRatings(userRatings);
+  //       setRatingsIsLoading(false);
+  //       console.log(userRatings);
+  //     });
+  // }, []);
 
   useEffect(() => {
-    fetch("/get_anime_df")
-      .then((res) => res.json())
-      .then((anime) => {
-        setAnime(anime);
-        setAnimeIsLoading(false);
-        console.log(anime);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch("/get_user_ratings_df")
-      .then((res) => res.json())
-      .then((userRatings) => {
-        setUserRatings(userRatings);
-        setRatingsIsLoading(false);
-        console.log(userRatings);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch("/get_content_based_recommendations").then(
+    fetch("/get_hybrid_recs").then(
       (res) => res.json()
     ).then(
-      (data) => {
-        setContentRecommendations(data)
-        setContentRecommendationsIsLoading(false)
-        console.log(contentRecommendations)
+      (recommendations) => {
+        setRecommendations(recommendations)
+        setRecommendationsIsLoading(false)
+        console.log(recommendations)
     });
   }, []);
 
@@ -75,13 +78,20 @@ function App() {
   return (
     <div>
       <div>
+        {recommendationsIsLoading ? <p>Loading Recommendations...</p> : (
+          recommendations.map((anime_title) => (
+            <p key={anime_title.toString()}>{anime_title}</p>
+          ))
+        )}
+      </div>
+      {/* <div>
         {animeIsLoading ? <p>Loading Anime...</p> : (
           anime.map((anime_title) => (
             <p key={anime_title.toString()}>{anime_title}</p>
           ))
         )}
-      </div>
-      <div>
+      </div> */}
+      {/* <div>
         {ratingsIsLoading ? <p>Loading Ratings...</p> : (
           userRatings.map((rating, index) => (
             <p key={`${rating}-${index}`}>{rating}</p>
@@ -89,7 +99,7 @@ function App() {
             // rating = 8, index = 1, separated by a hypon
           ))
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
