@@ -50,57 +50,91 @@ def text_cleaning(text):
 #     return anime_df['name'].values.tolist()[:50]
 
 @app.route("/clean_anime_df")
-def clean_anime_df(dataframe):
+def clean_anime_df(anime_dataframe):
     # reformat dataframe: removing NaN values and renaming columns, etc.
-    dataframe.rename(columns={'title': 'name'}, inplace=True)
-    dataframe.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
+    anime_dataframe.rename(columns={'title': 'name'}, inplace=True)
+    anime_dataframe.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
     
-    dataframe['name'] = dataframe['name'].apply(text_cleaning)
+    anime_dataframe['name'] = anime_dataframe['name'].apply(text_cleaning)
 
-    dataframe.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
-    dataframe.episodes.replace({'Unknown':np.nan},inplace=True)
+    anime_dataframe.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
+    anime_dataframe.episodes.replace({'Unknown':np.nan},inplace=True)
 
-    dataframe.drop_duplicates(subset=['name'], inplace=True)
-    dataframe.dropna(inplace=True)
-    dataframe.reset_index(drop=True, inplace=True)
+    anime_dataframe.drop_duplicates(subset=['name'], inplace=True)
+    anime_dataframe.dropna(inplace=True)
+    anime_dataframe.reset_index(drop=True, inplace=True)
 
     # replace the characters "[]'" with an empty space as the genre column is already of type string
-    dataframe['genre'] = dataframe['genre'].str.replace("'", "", regex=False)
-    dataframe['genre'] = dataframe['genre'].str.replace("[", "", regex=False)
-    dataframe['genre'] = dataframe['genre'].str.replace("]", "", regex=False)
+    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("'", "", regex=False)
+    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("[", "", regex=False)
+    anime_dataframe['genre'] = anime_dataframe['genre'].str.replace("]", "", regex=False)
 
-    return dataframe
+    return anime_dataframe
 
-@app.route("/get_user_ratings_df")
-def get_user_ratings_df():
-    user_ratings_df = pd.read_csv("../datasets/reviews.csv")
+# @app.route("/get_user_ratings_df")
+# def get_user_ratings_df():
+#     user_ratings_df = pd.read_csv("../datasets/reviews.csv")
 
-    user_ratings_df.drop(['link', 'text'], axis=1, inplace=True)
-    user_ratings_df.rename(columns={'profile': 'user_id'}, inplace=True)
+#     user_ratings_df.drop(['link', 'text'], axis=1, inplace=True)
+#     user_ratings_df.rename(columns={'profile': 'user_id'}, inplace=True)
+
+#     # turn user profile names (strings) into user ids (integers)
+#     user_ratings_df.user_id = pd.factorize(user_ratings_df.user_id)[0]
+
+#     user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("'", "", regex=False)
+#     user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("{", "", regex=False)
+#     user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("}", "", regex=False)
+#     user_ratings_df['scores'] = [re.sub("[^0-9,]", "", anime) for anime in user_ratings_df['scores']]
+
+#     # separate the ratings dictionary into separate columns
+#     category_ratings_df = user_ratings_df['scores'].str.split(",", expand=True)
+#     category_ratings_df.columns = ['Overall', 'Story', 'Animation','Sound', 'Character', 'Enjoyment']
+
+#     # Finalise the user_ratings_df
+#     user_ratings_df = pd.concat([user_ratings_df, category_ratings_df], axis=1)
+#     user_ratings_df.drop(columns=['score', 'scores', 'uid'], inplace=True)
+#     user_ratings_df.rename(columns={"anime_uid": "anime_id"}, inplace=True)
+
+#     user_ratings_df[['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']] = user_ratings_df[
+#     ['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']].apply(pd.to_numeric)
+
+#     return user_ratings_df['Overall'].values.tolist()[:50]
+
+@app.route("/clean_user_ratings_df")
+def clean_user_ratings_df(ratings_dataframe):
+
+    ratings_dataframe.drop(['link', 'text'], axis=1, inplace=True)
+    ratings_dataframe.rename(columns={'profile': 'user_id'}, inplace=True)
 
     # turn user profile names (strings) into user ids (integers)
-    user_ratings_df.user_id = pd.factorize(user_ratings_df.user_id)[0]
+    ratings_dataframe.user_id = pd.factorize(ratings_dataframe.user_id)[0]
 
-    user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("'", "", regex=False)
-    user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("{", "", regex=False)
-    user_ratings_df['scores'] = user_ratings_df['scores'].str.replace("}", "", regex=False)
-    user_ratings_df['scores'] = [re.sub("[^0-9,]", "", anime) for anime in user_ratings_df['scores']]
+    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("'", "", regex=False)
+    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("{", "", regex=False)
+    ratings_dataframe['scores'] = ratings_dataframe['scores'].str.replace("}", "", regex=False)
+    ratings_dataframe['scores'] = [re.sub("[^0-9,]", "", anime) for anime in ratings_dataframe['scores']]
 
     # separate the ratings dictionary into separate columns
-    category_ratings_df = user_ratings_df['scores'].str.split(",", expand=True)
+    category_ratings_df = ratings_dataframe['scores'].str.split(",", expand=True)
     category_ratings_df.columns = ['Overall', 'Story', 'Animation','Sound', 'Character', 'Enjoyment']
 
     # Finalise the user_ratings_df
-    user_ratings_df = pd.concat([user_ratings_df, category_ratings_df], axis=1)
-    user_ratings_df.drop(columns=['score', 'scores', 'uid'], inplace=True)
-    user_ratings_df.rename(columns={"anime_uid": "anime_id"}, inplace=True)
+    ratings_dataframe = pd.concat([ratings_dataframe, category_ratings_df], axis=1)
+    ratings_dataframe.drop(columns=['score', 'scores', 'uid'], inplace=True)
+    ratings_dataframe.rename(columns={"anime_uid": "anime_id"}, inplace=True)
 
-    user_ratings_df[['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']] = user_ratings_df[
+    ratings_dataframe[['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']] = ratings_dataframe[
     ['Overall', 'Story', 'Animation', 'Sound', 'Character', 'Enjoyment']].apply(pd.to_numeric)
 
-    return user_ratings_df['Overall'].values.tolist()[:50]
+    return ratings_dataframe
 
-def merge_anime_with_ratings_df(anime_df, user_ratings_df):
+def get_merged_df(): #anime_df, user_ratings_df
+    anime_df = pd.read_csv("../datasets/animes.csv")
+    anime_df = clean_anime_df(anime_df)
+
+    user_ratings_df = pd.read_csv("../datasets/reviews.csv")
+    user_ratings_df = clean_user_ratings_df(user_ratings_df)
+
     anime_with_ratings_df = pd.merge(anime_df, user_ratings_df, on='anime_id')
 
     anime_with_ratings_df.drop_duplicates(subset=['user_id', 'name'], inplace=True)
@@ -232,6 +266,7 @@ def get_cb_recs():
     # anime_df = get_anime_df()
     anime_df = pd.read_csv("../datasets/animes.csv")
     anime_df = clean_anime_df(anime_df)
+
     user_ratings_df = get_user_ratings_df()
 
     # normalised_anime_df = pd.read_csv("../datasets/animes.csv")
@@ -247,10 +282,107 @@ def get_cb_recs():
 
 # ============ Collaborative filtering ============
 
+def create_pivot_table(data, value):
+    pivot_table = data.pivot_table(index='user_id', columns='name', values=value)
+    pivot_table.fillna(0, inplace=True)
+
+    return pivot_table
+
+def calculate_similarities(pivot_table):
+    similarities = cosine_similarity(pivot_table.T)
+    similarities_df = pd.DataFrame(similarities, index=pivot_table.columns, columns=pivot_table.columns)
+
+    return similarities_df
+
+def set_feature_weights():#pass in values given by the user on the website
+    feature_weights = {
+    'genre': 0.35,
+    'members_norm': 0.1,
+    'rating_norm': 0.35,
+    'popularity_norm': 0.1,
+    'episodes_norm': 0.1
+    }
+
+    return feature_weights
+
+def set_rating_weights(): #pass in values given by the user on the website
+    rating_weights = {
+    'overall_weight' : 0.5, 
+    'story_weight' : 0.1, 
+    'animation_weight' : 0.1,
+    'sound_weight' : 0.1,
+    'character_weight': 0.1,
+    'enjoyment_weight' : 0.1,
+    }
+
+    return rating_weights
 
 
+def create_pivots_for_rating_categories():
+    # anime_df = pd.read_csv("../datasets/animes.csv")
+    # anime_df = clean_anime_df(anime_df)
 
+    # user_ratings_df = get_user_ratings_df()
 
+    anime_with_ratings_df = get_merged_df()#anime_df, user_ratings_df
+
+    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
+    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
+    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
+    sound_pivot = create_pivot_table(anime_with_ratings_df, 'Sound')
+    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
+    enjoyment_pivot = create_pivot_table(anime_with_ratings_df, 'Enjoyment')
+
+    return overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot
+
+def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot):
+
+    overall_similarities_df = calculate_similarities(overall_pivot)
+    story_similarities_df = calculate_similarities(story_pivot)
+    animation_similarities_df = calculate_similarities(animation_pivot)
+    sound_similarities_df = calculate_similarities(sound_pivot)
+    character_similarities_df = calculate_similarities(character_pivot)
+    enjoyment_similarities_df = calculate_similarities(enjoyment_pivot)
+
+    return overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df
+
+def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df):
+    rating_weights = set_rating_weights()
+
+    combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (sound_similarities_df * rating_weights['sound_weight']) + (character_similarities_df * rating_weights['character_weight']) + (enjoyment_similarities_df * rating_weights['enjoyment_weight']))
+
+    return combined_category_ratings_pivot
+
+def collaborative_filtering_recommendations(anime, combined_category_ratings_pivot, anime_df, n=100):
+    similarity_scores = combined_category_ratings_pivot[anime]
+    similarity_scores = similarity_scores.sort_values(ascending=False)
+
+    similar_anime = similarity_scores.iloc[1:n+1].index.tolist()
+
+    # remove reoccuring anime titles, e.g. Tokyo Ghoul season 1, Tokyo Ghoul season 2, etc.
+    unique_titles = set(get_unique_recommendations(similar_anime, anime_df))
+
+    recommendations = [i for i in similar_anime if i in unique_titles]
+
+    return recommendations
+
+@app.route("/get_cf_recs")
+def get_cf_recs():
+    anime_df = pd.read_csv("../datasets/animes.csv")
+    anime_df = clean_anime_df(anime_df)
+
+    overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot = create_pivots_for_rating_categories()
+    
+    overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
+
+    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
+
+    return collaborative_filtering_recommendations('Death Note', combined_category_ratings_pivot, anime_df)
+
+# ============ Hybrid Recommendations ============
 
 if __name__ == "__main__":
     app.run(debug=True)
