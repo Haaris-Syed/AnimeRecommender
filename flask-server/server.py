@@ -293,7 +293,7 @@ def create_pivots_for_rating_categories():
     return overall_pivot, story_pivot, animation_pivot, character_pivot
 
 # only need to calculate once
-def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot):
+def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, character_pivot):
 
     overall_similarities_df = calculate_similarities(overall_pivot)
     story_similarities_df = calculate_similarities(story_pivot)
@@ -304,7 +304,7 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
 
 # only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df):
+animation_similarities_df, character_similarities_df):
     rating_weights = set_rating_weights()
 
     combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (character_similarities_df * rating_weights['character_weight']))
@@ -376,14 +376,14 @@ def combined_recommendations(anime_name, num_recommendations=50, content_weight=
 
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
-    # 3mins 30seconds to execute
+    # 3mins 30seconds to execute 
     # reduced down to approx 1 min 15 seconds using sparse matrix
+    # just under a minute to compute after removing sound and enjoyment
+
     return combined_recommendations('Death Note')
 
 def load_data():
     global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity
-    # global overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot
-    # global overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df
     global combined_category_ratings_pivot
     
     anime_df = process_anime_df()
@@ -400,6 +400,7 @@ def load_data():
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
     character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
     print("Pivots Done") #takes the longest to compute -> 1min approx
+    # takes roughly 35seconds now without sound and enjoyment 
 
     overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
     animation_pivot, character_pivot)
