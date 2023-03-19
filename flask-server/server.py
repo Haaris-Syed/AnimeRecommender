@@ -6,6 +6,7 @@ import numpy as np
 import sklearn as sk
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import mean_absolute_error
+from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 import re
 import string
@@ -135,11 +136,9 @@ def set_feature_weights():#pass in values given by the user on the website
 def set_rating_weights(): #pass in values given by the user on the website
     rating_weights = {
     'overall_weight' : 0.5, 
-    'story_weight' : 0.1, 
+    'story_weight' : 0.3, 
     'animation_weight' : 0.1,
-    'sound_weight' : 0.1,
     'character_weight': 0.1,
-    'enjoyment_weight' : 0.1,
     }
 
     return rating_weights
@@ -173,16 +172,12 @@ def calculate_cosine_similarity(normalised_anime_df, genres_df):
 overall_pivot = None
 story_pivot = None
 animation_pivot = None
-sound_pivot = None
 character_pivot = None
-enjoyment_pivot = None
 
 overall_similarities_df = None
 story_similarities_df = None
 animation_similarities_df = None
-sound_similarities_df = None
 character_similarities_df = None
-enjoyment_similarities_df = None
 
 combined_category_ratings_pivot = None
 
@@ -280,7 +275,8 @@ def create_pivot_table(data, value):
 
 # only need to calculate once for each ratings pivot table
 def calculate_similarities(pivot_table):
-    similarities = cosine_similarity(pivot_table.T)
+    sparse_pivot = csr_matrix(pivot_table)
+    similarities = cosine_similarity(sparse_pivot.T)
     similarities_df = pd.DataFrame(similarities, index=pivot_table.columns, columns=pivot_table.columns)
 
     return similarities_df
@@ -292,11 +288,9 @@ def create_pivots_for_rating_categories():
     overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
     story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
-    sound_pivot = create_pivot_table(anime_with_ratings_df, 'Sound')
     character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    enjoyment_pivot = create_pivot_table(anime_with_ratings_df, 'Enjoyment')
 
-    return overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot
+    return overall_pivot, story_pivot, animation_pivot, character_pivot
 
 # only need to calculate once
 def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot):
@@ -304,18 +298,16 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
     overall_similarities_df = calculate_similarities(overall_pivot)
     story_similarities_df = calculate_similarities(story_pivot)
     animation_similarities_df = calculate_similarities(animation_pivot)
-    sound_similarities_df = calculate_similarities(sound_pivot)
     character_similarities_df = calculate_similarities(character_pivot)
-    enjoyment_similarities_df = calculate_similarities(enjoyment_pivot)
 
-    return overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df
+    return overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df
 
 # only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
 animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df):
     rating_weights = set_rating_weights()
 
-    combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (sound_similarities_df * rating_weights['sound_weight']) + (character_similarities_df * rating_weights['character_weight']) + (enjoyment_similarities_df * rating_weights['enjoyment_weight']))
+    combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (character_similarities_df * rating_weights['character_weight']))
 
     return combined_category_ratings_pivot
 
@@ -385,6 +377,7 @@ def combined_recommendations(anime_name, num_recommendations=50, content_weight=
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
     # 3mins 30seconds to execute
+    # reduced down to approx 1 min 15 seconds using sparse matrix
     return combined_recommendations('Death Note')
 
 def load_data():
@@ -405,15 +398,15 @@ def load_data():
     overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
     story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
-    sound_pivot = create_pivot_table(anime_with_ratings_df, 'Sound')
     character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    enjoyment_pivot = create_pivot_table(anime_with_ratings_df, 'Enjoyment')
-    print("Pivots Done")
-    overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
-    animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
+    print("Pivots Done") #takes the longest to compute -> 1min approx
+
+    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, character_pivot)
     print("Similarities df Done")
+
     combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-    animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
+    animation_similarities_df, character_similarities_df)
 
     print("Data Loaded")
 
