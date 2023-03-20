@@ -9,6 +9,8 @@ function App() {
 	const [topAnime, setTopAnime] = useState([]);
 	const [search, setSearch] = useState("");
 	const[recommendationIDs, setRecommendationsIDs] = useState([])
+	const[recommendationImages, setRecommendationsImages] = useState([])
+	const[recommendationLinks, setRecommendationsLinks] = useState([])
 	const [jikanAnimeList, setJikanAnimeList] = useState()
 
 	const getTopAnime = async () => {
@@ -26,7 +28,7 @@ function App() {
 		e.preventDefault();
 
 		fetchAnime(search);
-		getAnimeFromJikanAPI(recommendationIDs);
+		// getAnimeFromJikanAPI(recommendationIDs);
 	}
 
 	const fetchAnime = async (query) => {
@@ -34,22 +36,28 @@ function App() {
 		.then(res => res.json());
 
 		setAnimeList(temp);
-		getAnimeIDs(temp);
-		
+		getAnimeIDs(temp);	
 	}
 
 	const getAnimeIDs = async(recommendationList) => {
-		const animeIDs = await fetch(`/get_ids_for_recommendations?query=${recommendationList}`)
+		const animeIDs = await fetch(`/get_data_for_recommendations?query=${recommendationList}`[0])
 		.then(res => res.json());
 
 		setRecommendationsIDs(animeIDs);
 	}
 
 	const getAnimeImages = async(recommendationList) => {
-		const animeImages = await fetch(`/get_images_for_recommendations?query=${recommendationList}`)
+		const animeImages = await fetch(`/get_data_for_recommendations?query=${recommendationList}`[1])
 		.then(res => res.json());
 
-		// setRecommendationsIDs(animeImages);
+		setRecommendationsImages(animeImages);
+	}
+
+	const getAnimeLinks = async(recommendationList) => {
+		const animeLinks = await fetch(`/get_data_for_recommendations?query=${recommendationList}`[2])
+		.then(res => res.json());
+
+		setRecommendationsLinks(animeLinks);
 	}
 
 	// const getAnimeLinks = async(recommendationList) => {
@@ -59,21 +67,22 @@ function App() {
 	// 	setRecommendationsIDs(animeIDs);
 	// }
 
-	const getAnimeFromJikanAPI = async (recommendationIDs) => {
-		let jikanAnimeList = [];
+	// const getAnimeFromJikanAPI = async (recommendationIDs) => {
+	// 	let jikanAnimeList = [];
 
-		for(let i = 0; i < recommendationIDs.length; i++){
-			const temp = await fetch(`https://api.jikan.moe/v4/anime/${recommendationIDs[i]}`)//`https://api.jikan.moe/v4/anime/28891`
-			.then(res => res.json());
+	// 	for(let i = 0; i < recommendationIDs.length; i++){
+	// 		const temp = await fetch(`https://api.jikan.moe/v4/anime/${recommendationIDs[i]}`)//`https://api.jikan.moe/v4/anime/28891`
+	// 		.then(res => res.json());
 
-			jikanAnimeList.push(temp);
-		}
-		console.log("JIKAN: ", jikanAnimeList)
-		setJikanAnimeList(jikanAnimeList)
+	// 		jikanAnimeList.push(temp);
+	// 	}
+	// 	console.log("JIKAN: ", jikanAnimeList)
+	// 	setJikanAnimeList(jikanAnimeList)
 		
-		// console.log("JIKAN LIST VALUE TEST: ", jikanAnimeList[0].data.url);
-	}
-	console.log("JIKAN LIST: ", jikanAnimeList);
+	// 	// console.log("JIKAN LIST VALUE TEST: ", jikanAnimeList[0].data.url);
+	// // }
+	// console.log("JIKAN LIST: ", jikanAnimeList);
+
 	return (
 		<div className="App">
 			<Header />
@@ -83,7 +92,7 @@ function App() {
 					handleSearch={handleSearch}
 					search={search}
 					setSearch={setSearch}
-					animeList={jikanAnimeList}/>
+					animeList={animeList}/>
 			</div>
 		</div>
 	);

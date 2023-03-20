@@ -2,23 +2,21 @@ import React, { useState, useEffect } from 'react'
 import AnimeCard from './AnimeCard'
 
 function Home(props) {
-	const [animeList, setAnimeList] = useState([])
+	// const [animeList, setAnimeList] = useState([])
 
-	useEffect(() => {
-		getAnimeValues();
-	}, [])
+	// useEffect(() => {
+	// 	getAnimeValues();
+	// }, [])
 
-	const getAnimeValues = async () => {
-		let anime = []
+	// const getAnimeValues = async () => {
+	// 	let anime = []
 
-		for (let key in props.animeList){
-			anime.push(props.animeList[key])
-		}
-		console.log("ANIME LIST: ", anime)
-		setAnimeList(anime)
-	}
-
-	console.log("UPDATED: ", animeList)
+	// 	for (let key in props.animeList){
+	// 		anime.push(props.animeList[key])
+	// 	}
+	// 	console.log("ANIME LIST: ", anime)
+	// 	setAnimeList(anime)
+	// }
 
 	return (
 	<main>
@@ -35,11 +33,11 @@ function Home(props) {
 			</form>
 		</div>
 		<div className="anime-list">
-			{animeList.map((anime) => (
+			{props.animeList.map((anime, index) => (
 				<AnimeCard 
-				anime={anime.title}
+				anime={anime}
 				// key={anime.mal_id} 
-				key={anime.mal_id}
+				key={index}
 				/>
 			))}
 		</div>

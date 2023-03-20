@@ -3,7 +3,7 @@ import React from 'react'
 function AnimeCard({ anime }) {
   return (
     <article className="anime-card">
-			<a 
+			{/* <a 
 				href={anime.url} 
 				target="_blank" 
 				rel="noreferrer">
@@ -13,7 +13,8 @@ function AnimeCard({ anime }) {
 						alt="Anime" />
 				</figure>
 				<h3>{ anime.title }</h3>
-			</a>
+			</a> */}
+			<p>{anime}</p>
 		</article>
   )
 }

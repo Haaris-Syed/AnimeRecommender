@@ -156,26 +156,29 @@ def calculate_cosine_similarity(normalised_anime_df, genres_df):
 # the main line we are removing that differs this function from process_anime_df is:
 #  anime_df.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
 def get_website_anime_df():
-    anime_df = pd.read_csv("../datasets/animes.csv")
+    website_anime_df = pd.read_csv("../datasets/animes.csv")
 
     # reformat dataframe: removing NaN values and renaming columns, etc.
-    anime_df.rename(columns={'title': 'name'}, inplace=True)
+    website_anime_df.rename(columns={'title': 'name'}, inplace=True)
     
-    anime_df['name'] = anime_df['name'].apply(text_cleaning)
+    website_anime_df['name'] = website_anime_df['name'].apply(text_cleaning)
 
-    anime_df.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
-    anime_df.episodes.replace({'Unknown':np.nan},inplace=True)
+    website_anime_df.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
+    website_anime_df.episodes.replace({'Unknown':np.nan},inplace=True)
 
-    anime_df.drop_duplicates(subset=['name'], inplace=True)
-    anime_df.dropna(inplace=True)
-    anime_df.reset_index(drop=True, inplace=True)
+    # fill NaN values for images with a default MAL picture:
+    website_anime_df.fillna('https://image.myanimelist.net/ui/OK6W_koKDTOqqqLDbIoPAiC8a86sHufn_jOI-JGtoCQ', inplace=True)
+
+    website_anime_df.drop_duplicates(subset=['name'], inplace=True)
+    website_anime_df.dropna(inplace=True)
+    website_anime_df.reset_index(drop=True, inplace=True)
 
     # replace the characters "[]'" with an empty space as the genre column is already of type string
-    anime_df['genre'] = anime_df['genre'].str.replace("'", "", regex=False)
-    anime_df['genre'] = anime_df['genre'].str.replace("[", "", regex=False)
-    anime_df['genre'] = anime_df['genre'].str.replace("]", "", regex=False)
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("'", "", regex=False)
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("[", "", regex=False)
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("]", "", regex=False)
 
-    return anime_df
+    return website_anime_df
 
 # ============ Declaring global dataframes ============
 # def generate_global_dataframes():
@@ -402,35 +405,44 @@ def combined_recommendations(anime_name, num_recommendations=20, content_weight=
     weighted_scores = scores[anime_name].sort_values(ascending=False)
     return weighted_scores.head(num_recommendations).index.tolist()
 
-@app.route('/get_ids_for_recommendations')
-def get_ids_for_recommendations():
-    global anime_df
+# @app.route('/get_ids_for_recommendations')
+# def get_ids_for_recommendations():
+#     global anime_df
+
+#     recommendations = request.args.get('query')
+#     recommendations = recommendations.replace('%20', ' ')
+#     recommendations = recommendations.split(',')
+    
+#     anime_ids = []
+
+#     for rec in recommendations:
+#         anime_ids.append(int(anime_df.loc[anime_df['name'] == rec]['anime_id'].values[0]))
+
+#     return anime_ids
+
+@app.route('/get_data_for_recommendations')
+def get_data_for_recommendations():
+    global website_anime_df
 
     recommendations = request.args.get('query')
     recommendations = recommendations.replace('%20', ' ')
     recommendations = recommendations.split(',')
-    
+
+    website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
+
     anime_ids = []
+    img_urls = []
+    mal_link = []
+    synopsis = []
 
     for rec in recommendations:
-        anime_ids.append(int(anime_df.loc[anime_df['name'] == rec]['anime_id'].values[0]))
+        anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
+        anime_ids.append(int(anime_rec['anime_id'].values[0]))
+        synopsis.append(anime_rec['synopsis'].values[0])
+        img_urls.append(anime_rec['img_url'].values[0])
+        mal_link.append(anime_rec['link'].values[0])
 
-    return anime_ids
-
-def get_images_for_recommendations(recommendations):
-
-    recommendations = request.args.get('query')
-    recommendations = recommendations.replace('%20', '') #check if need to add space or not as they are links, not titles 
-    recommendations = recommendations.split(',')
-
-    anime_images = []
-
-    for rec in recommendations:
-        # print(website_anime_df.loc[website_anime_df['name'] == rec]['img_url'].values)
-        img = website_anime_df.loc[website_anime_df['name'] == rec]['img_url'].values[0]
-        anime_images.append(img)
-
-    return anime_images
+    return anime_ids, img_urls, mal_link, synopsis
 
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
