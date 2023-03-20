@@ -1,20 +1,20 @@
 import React from 'react'
 
-function AnimeCard({ anime }) {
+function AnimeCard(props) {
   return (
     <article className="anime-card">
-			{/* <a 
-				href={anime.url} 
+			<a 
+				href={props.animeLink} 
 				target="_blank" 
 				rel="noreferrer">
 				<figure>
 					<img 
-						src={anime.images.jpg.large_image_url} 
+						src={props.animeImage} 
 						alt="Anime" />
 				</figure>
-				<h3>{ anime.title }</h3>
-			</a> */}
-			<p>{anime}</p>
+				<h3>{ props.anime }</h3>
+			</a>
+			{/* <p>{anime}</p> */}
 		</article>
   )
 }

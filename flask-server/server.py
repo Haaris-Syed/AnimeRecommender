@@ -373,7 +373,7 @@ def get_cf_recs(anime_title):
 
 # ============ Hybrid Recommendations ============
 
-def combined_recommendations(anime_name, num_recommendations=20, content_weight=0.4, collaborative_weight=0.6):
+def combined_recommendations(anime_name, num_recommendations=50, content_weight=0.4, collaborative_weight=0.6):
     global combined_category_ratings_pivot
     
     # if anime_name not in combined_category_ratings_pivot.index:
@@ -420,8 +420,8 @@ def combined_recommendations(anime_name, num_recommendations=20, content_weight=
 
 #     return anime_ids
 
-@app.route('/get_data_for_recommendations')
-def get_data_for_recommendations():
+@app.route('/get_ids_for_recommendations')
+def get_ids_for_recommendations():
     global website_anime_df
 
     recommendations = request.args.get('query')
@@ -431,18 +431,66 @@ def get_data_for_recommendations():
     website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
 
     anime_ids = []
-    img_urls = []
-    mal_link = []
-    synopsis = []
 
     for rec in recommendations:
         anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
         anime_ids.append(int(anime_rec['anime_id'].values[0]))
-        synopsis.append(anime_rec['synopsis'].values[0])
-        img_urls.append(anime_rec['img_url'].values[0])
-        mal_link.append(anime_rec['link'].values[0])
 
-    return anime_ids, img_urls, mal_link, synopsis
+    return anime_ids
+
+@app.route('/get_images_for_recommendations')
+def get_images_for_recommendations():
+    global website_anime_df
+
+    recommendations = request.args.get('query')
+    recommendations = recommendations.replace('%20', ' ')
+    recommendations = recommendations.split(',')
+
+    website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
+
+    img_urls = []
+
+    for rec in recommendations:
+        anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
+        img_urls.append(str(anime_rec['img_url'].values[0]))
+
+    return img_urls
+
+@app.route('/get_links_for_recommendations')
+def get_links_for_recommendations():
+    global website_anime_df
+
+    recommendations = request.args.get('query')
+    recommendations = recommendations.replace('%20', ' ')
+    recommendations = recommendations.split(',')
+
+    website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
+
+    mal_link = []
+
+    for rec in recommendations:
+        anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
+        mal_link.append(str(anime_rec['link'].values[0]))
+
+    return mal_link
+
+@app.route('/get_synopsis_for_recommendations')
+def get_synopsis_for_recommendations():
+    global website_anime_df
+
+    recommendations = request.args.get('query')
+    recommendations = recommendations.replace('%20', ' ')
+    recommendations = recommendations.split(',')
+
+    website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
+
+    synopsis = []
+
+    for rec in recommendations:
+        anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
+        synopsis.append(str(anime_rec['synopsis'].values[0]))
+
+    return synopsis
 
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():

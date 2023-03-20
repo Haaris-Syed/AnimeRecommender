@@ -35,9 +35,12 @@ function Home(props) {
 		<div className="anime-list">
 			{props.animeList.map((anime, index) => (
 				<AnimeCard 
-				anime={anime}
+				anime={props.animeList[index]}
+				animeID={props.animeIDs[index]}
+				animeImage={props.animeImages[index]}
+				animeLink={props.animeLinks[index]}
 				// key={anime.mal_id} 
-				key={index}
+				key={props.animeIDs[index]}
 				/>
 			))}
 		</div>
