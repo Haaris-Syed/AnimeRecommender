@@ -62,7 +62,7 @@ header h1 strong {
 }
 .content-wrap main .home-head .search-box {
   display: flex;
-  justify-content: flex-center;
+  justify-content: center;
   flex: 1 1 0%;
 }
 .content-wrap main .home-head .search-box input {
@@ -110,7 +110,7 @@ header h1 strong {
 }
 .content-wrap main .anime-list .anime-card figure img {
   display: block;
-  width: 100%;
+  width: 75%;
   height: 350px;
   -o-object-fit: cover;
      object-fit: cover;

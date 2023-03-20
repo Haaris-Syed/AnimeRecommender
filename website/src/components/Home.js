@@ -7,7 +7,7 @@ function Home(props) {
         <div className='home-head'>
             <form 
             className='search-box'
-            onSubmit={props.handleSearch}   >
+            onSubmit={props.handleSearch} >
                 <input 
                 type="search"
                 placeholder='Enter an anime...'
@@ -17,10 +17,12 @@ function Home(props) {
             </form>
         </div>
         <div className="anime-list">
-            {props.animeList.map(anime => (
+            {props.animeList.map((anime, index) => (
                 <AnimeCard 
                 anime={anime}
-                key={anime.mal_id} />
+                // key={anime.mal_id} 
+                key={index}
+                />
             ))}
 		</div>
     </main>

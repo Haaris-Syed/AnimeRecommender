@@ -4,19 +4,6 @@ import Header from "./components/Header"
 import TopAnimeBar from "./components/TopAnimeBar";
 
 function App() {
-	// const [recommendationsIsLoading, setRecommendationsIsLoading] =
-	// 	useState(true);
-	// const [recommendations, setRecommendations] = useState([{}]);
-
-	// useEffect(() => {
-	// 	fetch("/get_hybrid_recs")
-	// 		.then((res) => res.json())
-	// 		.then((recommendations) => {
-	// 			setRecommendations(recommendations);
-	// 			setRecommendationsIsLoading(false);
-	// 			console.log(recommendations);
-	// 		});
-	// }, []);
 
 	const [animeList, setAnimeList] = useState([]);
 	const [topAnime, setTopAnime] = useState([]);
@@ -39,12 +26,29 @@ function App() {
 		fetchAnime(search);
 	}
 
-	const fetchAnime = async (query) => {
-		const temp = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&order_by=title&
-		sort=asc`)
-		.then(res => res.json());
+	// const fetchAnime = async (query) => {
+	// 	const temp = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&order_by=title&
+	// 	sort=asc`)
+	// 	.then(res => res.json());
 
-		setAnimeList(temp.data);
+	// 	setAnimeList(temp.data);
+	// }
+
+	const fetchAnime = async (query) => {
+		const temp = await fetch(`/get_hybrid_recs?query=${query}`)
+		.then(res => res.json());
+		
+		console.log("recommendations: ", temp)
+
+		setAnimeList(temp);
+		// getAnimeFromJikanAPI();
+	}
+
+	const getAnimeFromJikanAPI = async () => {
+		const temp = await fetch(`https://api.jikan.moe/v4/anime/28891`)
+			.then(res => res.json());
+		
+		console.log("HAIKYUU?: ", temp);
 	}
 
 	return (

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 from collections import defaultdict
 import pandas as pd
@@ -380,7 +380,9 @@ def get_hybrid_recs():
     # reduced down to approx 1 min 15 seconds using sparse matrix
     # just under a minute to compute after removing sound and enjoyment
 
-    return combined_recommendations('Death Note')
+    query = request.args.get('query')
+
+    return combined_recommendations(query)
 
 def load_data():
     global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity
