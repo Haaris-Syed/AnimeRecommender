@@ -342,7 +342,7 @@ def get_cf_recs(anime_title):
 
 # ============ Hybrid Recommendations ============
 
-def combined_recommendations(anime_name, num_recommendations=50, content_weight=0.4, collaborative_weight=0.6):
+def combined_recommendations(anime_name, num_recommendations=10, content_weight=0.4, collaborative_weight=0.6):
     global combined_category_ratings_pivot
     
     # if anime_name not in combined_category_ratings_pivot.index:
@@ -384,7 +384,6 @@ def get_ids_for_recommendations():
     
     anime_ids = []
 
-    # currently looping through each character in the string, not by the entire anime title
     for rec in recommendations:
         anime_ids.append(int(anime_df.loc[anime_df['name'] == rec]['anime_id'].values[0]))
 

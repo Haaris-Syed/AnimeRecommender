@@ -9,6 +9,7 @@ function App() {
 	const [topAnime, setTopAnime] = useState([]);
 	const [search, setSearch] = useState("");
 	const[recommendationIDs, setRecommendationsIDs] = useState([])
+	const [jikanAnimeList, setJikanAnimeList] = useState()
 
 	const getTopAnime = async () => {
 		const temp = await fetch(`https://api.jikan.moe/v4/top/anime`)
@@ -40,22 +41,30 @@ function App() {
 		.then(res => res.json());
 
 		setAnimeList(temp);
-		getAnimeIDs(temp)
-		getAnimeFromJikanAPI();
+		getAnimeIDs(temp);
+		getAnimeFromJikanAPI(recommendationIDs);
 	}
 
 	const getAnimeIDs = async(recommendationList) => {
 		const animeIDs = await fetch(`/get_ids_for_recommendations?query=${recommendationList}`)
 		.then(res => res.json());
 
-		setRecommendationsIDs(animeIDs)
+		setRecommendationsIDs(animeIDs);
 	}
 
-	const getAnimeFromJikanAPI = async () => {
-		const temp = await fetch(`https://api.jikan.moe/v4/anime?query=Haikyuu Karasuno Koukou vs Shiratorizawa Gakuen Koukou`)//`https://api.jikan.moe/v4/anime/28891`
+	const getAnimeFromJikanAPI = async (recommendationIDs) => {
+		let jikanAnimeList = [];
+
+		for(let i = 0; i < recommendationIDs.length; i++){
+			const temp = await fetch(`https://api.jikan.moe/v4/anime/${recommendationIDs[i]}`)//`https://api.jikan.moe/v4/anime/28891`
 			.then(res => res.json());
+
+			jikanAnimeList.push(temp);
+		}
 		
-		console.log("HAIKYUU?: ", temp);
+		setJikanAnimeList(jikanAnimeList)
+		
+		console.log("JIKAN LIST: ", jikanAnimeList);
 	}
 
 	return (
