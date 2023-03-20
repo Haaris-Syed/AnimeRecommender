@@ -8,6 +8,7 @@ function App() {
 	const [animeList, setAnimeList] = useState([]);
 	const [topAnime, setTopAnime] = useState([]);
 	const [search, setSearch] = useState("");
+	const[recommendationIDs, setRecommendationsIDs] = useState([])
 
 	const getTopAnime = async () => {
 		const temp = await fetch(`https://api.jikan.moe/v4/top/anime`)
@@ -37,15 +38,21 @@ function App() {
 	const fetchAnime = async (query) => {
 		const temp = await fetch(`/get_hybrid_recs?query=${query}`)
 		.then(res => res.json());
-		
-		console.log("recommendations: ", temp)
 
 		setAnimeList(temp);
-		// getAnimeFromJikanAPI();
+		getAnimeIDs(temp)
+		getAnimeFromJikanAPI();
+	}
+
+	const getAnimeIDs = async(recommendationList) => {
+		const animeIDs = await fetch(`/get_ids_for_recommendations?query=${recommendationList}`)
+		.then(res => res.json());
+
+		setRecommendationsIDs(animeIDs)
 	}
 
 	const getAnimeFromJikanAPI = async () => {
-		const temp = await fetch(`https://api.jikan.moe/v4/anime/28891`)
+		const temp = await fetch(`https://api.jikan.moe/v4/anime?query=Haikyuu Karasuno Koukou vs Shiratorizawa Gakuen Koukou`)//`https://api.jikan.moe/v4/anime/28891`
 			.then(res => res.json());
 		
 		console.log("HAIKYUU?: ", temp);

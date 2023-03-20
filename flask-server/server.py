@@ -374,15 +374,31 @@ def combined_recommendations(anime_name, num_recommendations=50, content_weight=
     weighted_scores = scores[anime_name].sort_values(ascending=False)
     return weighted_scores.head(num_recommendations).index.tolist()
 
+@app.route('/get_ids_for_recommendations')
+def get_ids_for_recommendations():
+    global anime_df
+
+    recommendations = request.args.get('query')
+    recommendations = recommendations.replace('%20', ' ')
+    recommendations = recommendations.split(',')
+    
+    anime_ids = []
+
+    # currently looping through each character in the string, not by the entire anime title
+    for rec in recommendations:
+        anime_ids.append(int(anime_df.loc[anime_df['name'] == rec]['anime_id'].values[0]))
+
+    return anime_ids
+
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
     # 3mins 30seconds to execute 
     # reduced down to approx 1 min 15 seconds using sparse matrix
     # just under a minute to compute after removing sound and enjoyment
 
-    query = request.args.get('query')
-
-    return combined_recommendations(query)
+    anime_title = request.args.get('query')
+    
+    return combined_recommendations(anime_title)
 
 def load_data():
     global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity
