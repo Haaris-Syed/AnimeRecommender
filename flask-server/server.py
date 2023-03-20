@@ -149,6 +149,34 @@ def calculate_cosine_similarity(normalised_anime_df, genres_df):
     cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
 
     return cosine_sim
+
+# this function will return an anime_df that will be a cleaned version but will consist of 
+# columns that were originally removed as part of developing the recommender system
+
+# the main line we are removing that differs this function from process_anime_df is:
+#  anime_df.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
+def get_website_anime_df():
+    anime_df = pd.read_csv("../datasets/animes.csv")
+
+    # reformat dataframe: removing NaN values and renaming columns, etc.
+    anime_df.rename(columns={'title': 'name'}, inplace=True)
+    
+    anime_df['name'] = anime_df['name'].apply(text_cleaning)
+
+    anime_df.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
+    anime_df.episodes.replace({'Unknown':np.nan},inplace=True)
+
+    anime_df.drop_duplicates(subset=['name'], inplace=True)
+    anime_df.dropna(inplace=True)
+    anime_df.reset_index(drop=True, inplace=True)
+
+    # replace the characters "[]'" with an empty space as the genre column is already of type string
+    anime_df['genre'] = anime_df['genre'].str.replace("'", "", regex=False)
+    anime_df['genre'] = anime_df['genre'].str.replace("[", "", regex=False)
+    anime_df['genre'] = anime_df['genre'].str.replace("]", "", regex=False)
+
+    return anime_df
+
 # ============ Declaring global dataframes ============
 # def generate_global_dataframes():
 #     global anime_df, user_ratings_df, anime_with_ratings_df
@@ -342,7 +370,7 @@ def get_cf_recs(anime_title):
 
 # ============ Hybrid Recommendations ============
 
-def combined_recommendations(anime_name, num_recommendations=10, content_weight=0.4, collaborative_weight=0.6):
+def combined_recommendations(anime_name, num_recommendations=20, content_weight=0.4, collaborative_weight=0.6):
     global combined_category_ratings_pivot
     
     # if anime_name not in combined_category_ratings_pivot.index:
@@ -389,6 +417,21 @@ def get_ids_for_recommendations():
 
     return anime_ids
 
+def get_images_for_recommendations(recommendations):
+
+    recommendations = request.args.get('query')
+    recommendations = recommendations.replace('%20', '') #check if need to add space or not as they are links, not titles 
+    recommendations = recommendations.split(',')
+
+    anime_images = []
+
+    for rec in recommendations:
+        # print(website_anime_df.loc[website_anime_df['name'] == rec]['img_url'].values)
+        img = website_anime_df.loc[website_anime_df['name'] == rec]['img_url'].values[0]
+        anime_images.append(img)
+
+    return anime_images
+
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
     # 3mins 30seconds to execute 
@@ -400,7 +443,7 @@ def get_hybrid_recs():
     return combined_recommendations(anime_title)
 
 def load_data():
-    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity
+    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity, website_anime_df
     global combined_category_ratings_pivot
     
     anime_df = process_anime_df()
@@ -409,6 +452,8 @@ def load_data():
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df)
     cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+
+    website_anime_df = get_website_anime_df()
 
     print("CB Done")
 

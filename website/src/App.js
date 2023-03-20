@@ -26,15 +26,8 @@ function App() {
 		e.preventDefault();
 
 		fetchAnime(search);
+		getAnimeFromJikanAPI(recommendationIDs);
 	}
-
-	// const fetchAnime = async (query) => {
-	// 	const temp = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&order_by=title&
-	// 	sort=asc`)
-	// 	.then(res => res.json());
-
-	// 	setAnimeList(temp.data);
-	// }
 
 	const fetchAnime = async (query) => {
 		const temp = await fetch(`/get_hybrid_recs?query=${query}`)
@@ -42,7 +35,7 @@ function App() {
 
 		setAnimeList(temp);
 		getAnimeIDs(temp);
-		getAnimeFromJikanAPI(recommendationIDs);
+		
 	}
 
 	const getAnimeIDs = async(recommendationList) => {
@@ -51,6 +44,20 @@ function App() {
 
 		setRecommendationsIDs(animeIDs);
 	}
+
+	const getAnimeImages = async(recommendationList) => {
+		const animeImages = await fetch(`/get_images_for_recommendations?query=${recommendationList}`)
+		.then(res => res.json());
+
+		// setRecommendationsIDs(animeImages);
+	}
+
+	// const getAnimeLinks = async(recommendationList) => {
+	// 	const animeLinks = await fetch(`/get_ids_for_recommendations?query=${recommendationList}`)
+	// 	.then(res => res.json());
+
+	// 	setRecommendationsIDs(animeIDs);
+	// }
 
 	const getAnimeFromJikanAPI = async (recommendationIDs) => {
 		let jikanAnimeList = [];
@@ -61,12 +68,12 @@ function App() {
 
 			jikanAnimeList.push(temp);
 		}
-		
+		console.log("JIKAN: ", jikanAnimeList)
 		setJikanAnimeList(jikanAnimeList)
 		
-		console.log("JIKAN LIST: ", jikanAnimeList);
+		// console.log("JIKAN LIST VALUE TEST: ", jikanAnimeList[0].data.url);
 	}
-
+	console.log("JIKAN LIST: ", jikanAnimeList);
 	return (
 		<div className="App">
 			<Header />
@@ -76,7 +83,7 @@ function App() {
 					handleSearch={handleSearch}
 					search={search}
 					setSearch={setSearch}
-					animeList={animeList}/>
+					animeList={jikanAnimeList}/>
 			</div>
 		</div>
 	);
