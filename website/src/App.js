@@ -67,6 +67,7 @@ function App() {
     setAnimeLinks(animeLinks);
   };
 
+
   return (
     <div className="App">
       <Header />

@@ -3,6 +3,9 @@ import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/Filters.css";
 
+
+// MAKE THIS A MODAL, AND THEN ADD A MENU BAR AT THE TOP OF THE SCREEN THAT CAN HAVE PROFILE, ACCOUNT, ETC.
+
 function Filters() {
   const [menubar, setMenuBar] = useState(false);
 
