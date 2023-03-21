@@ -4,7 +4,7 @@ import * as AiIcons from "react-icons/ai";
 import { IconContext } from "react-icons";
 import { Link } from "react-router-dom";
 import { NavBarItems } from "./NavbarItems";
-import "./Navbar.css";
+import "../assets/css/Navbar.css";
 
 
 function Navbar() {

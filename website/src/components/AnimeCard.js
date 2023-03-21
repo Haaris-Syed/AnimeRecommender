@@ -12,9 +12,8 @@ function AnimeCard(props) {
 						src={props.animeImage} 
 						alt="Anime" />
 				</figure>
-				<h3>{ props.anime }</h3>
 			</a>
-			{/* <p>{anime}</p> */}
+			<h3>{ props.anime }</h3>
 		</article>
   )
 }

@@ -1,0 +1,14 @@
+.filter-button {
+  background-color: transparent;
+  color: rgb(33, 113, 116);
+  border: none;
+  padding: 10px 20px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  }
+
+  .filter-button:hover {
+    color: rgb(33, 113, 116);
+    transform: scale(1.1);
+  }

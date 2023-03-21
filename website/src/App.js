@@ -69,13 +69,14 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <div className="content-wrap">
-        <Router className='menu'>
+	  <Router className='menu'>
           <Navbar />
           <Routes>
             <Route path="/" exact component={Home} />
           </Routes>
         </Router>
+      <div className="content-wrap">
+		<TopAnimeBar topAnime={topAnime} />
         <Home
           handleSearch={handleSearch}
           search={search}
@@ -87,7 +88,7 @@ function App() {
         />
       </div>
       <div className="content-wrap">
-        <TopAnimeBar topAnime={topAnime} />
+        
       </div>
     </div>
   );
