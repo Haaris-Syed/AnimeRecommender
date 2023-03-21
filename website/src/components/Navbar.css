@@ -20,12 +20,12 @@
     justify-content: center;
     position: fixed;
     top: 0;
-    right: -100%;
+    left: -100%;
     transition: 850ms;
   }
   
   .nav-menu.active {
-    right: 0;
+    left: 0;
     transition: 350ms;
   }
   
