@@ -2,18 +2,18 @@ import React from "react";
 import AnimeCard from "./AnimeCard";
 import Navbar from "./Navbar";
 import Searchbar from "./Searchbar";
-import Filters from "./Filters";
+import FilterBar from "./FilterBar";
 
 function Home(props) {
   return (
     <main>
       <div className="home-head">
-			<Searchbar 
-			search={props.search}
-			handleSearch={props.handleSearch}
-			setSearch={props.setSearch}
-			/>
-		<Filters />
+        <Searchbar
+          search={props.search}
+          handleSearch={props.handleSearch}
+          setSearch={props.setSearch}
+        />
+        <FilterBar />
       </div>
       <div className="anime-list">
         {props.animeList.map((anime, index) => (

@@ -3,6 +3,7 @@ import Home from "./components/Home";
 import Header from "./components/Header";
 import TopAnimeBar from "./components/TopAnimeBar";
 import Navbar from "./components/Navbar";
+import FilterBar from "./components/FilterBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -72,7 +73,7 @@ function App() {
 	  <Router className='menu'>
           <Navbar />
           <Routes>
-            <Route path="/" exact component={Home} />
+            <Route/>
           </Routes>
         </Router>
       <div className="content-wrap">
@@ -87,8 +88,7 @@ function App() {
           animeLinks={animeLinks}
         />
       </div>
-      <div className="content-wrap">
-        
+      <div className="content-wrap">  
       </div>
     </div>
   );

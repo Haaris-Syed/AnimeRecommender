@@ -3,7 +3,7 @@ import * as AiIcons from "react-icons/ai";
 import * as BSIcons from "react-icons/bs";
 import * as RIIcons from "react-icons/ri";
 
-export const NavBarItems = [
+export const NavbarItems = [
   {
     title: "Home",
     path: "/",
