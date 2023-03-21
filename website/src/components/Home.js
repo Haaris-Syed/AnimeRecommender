@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import AnimeCard from "./AnimeCard";
-import Navbar from "./Navbar";
 import Searchbar from "./Searchbar";
-import FilterBar from "./FilterBar";
 import FilterModal from "./FilterModal";
+import ValueSlider from "./ValueSlider";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/Filters.css";
@@ -24,7 +23,6 @@ function Home(props) {
           handleSearch={props.handleSearch}
           setSearch={props.setSearch}
         />
-        {/* <FilterBar /> */}
         <button className="filter-button">
           <BSIcons.BsSliders onClick={toggleModal} />
         </button>
@@ -38,8 +36,9 @@ function Home(props) {
               Here you can change some aspects of the algorithm used to make
               recommendations.
             </p>
+            <ValueSlider />
           </FilterModal>
-        )}
+        )} 
       </div>
       <div className="anime-list">
         {props.animeList.map((anime, index) => (
