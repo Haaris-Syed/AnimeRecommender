@@ -1,22 +1,28 @@
 import React from "react";
+import Navbar from "./Navbar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from './Home'
 
-function TopAnimeBar( {topAnime} ) {
+function TopAnimeBar({ topAnime }) {
   return (
-    <aside>
-      <nav>
-        <h3>Top Anime</h3>
+    <div>
+      <aside>
+        <nav>
+          <h3>Top Anime</h3>
           {topAnime.map((anime) => (
             <a
               href={anime.url}
-              target='_blank'
+              target="_blank"
               key={anime.mal_id}
-              rel="noreferrer">
-                { anime.title }
+              rel="noreferrer"
+            >
+              {anime.title}
             </a>
           ))}
-      </nav>
-    </aside>
-  )
+        </nav>
+      </aside>
+    </div>
+  );
 }
 
 export default TopAnimeBar;
