@@ -124,11 +124,11 @@ def get_normalised_df():
 
 def set_feature_weights():#pass in values given by the user on the website
     feature_weights = {
-    'genre': 0.35,
-    'members_norm': 0.1,
-    'rating_norm': 0.35,
-    'popularity_norm': 0.1,
-    'episodes_norm': 0.1
+        'genre': 0.35,
+        'members_norm': 0.1,
+        'rating_norm': 0.35,
+        'popularity_norm': 0.1,
+        'episodes_norm': 0.1
     }
 
     return feature_weights
@@ -136,11 +136,16 @@ def set_feature_weights():#pass in values given by the user on the website
 def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1): #pass in values given by the user on the website
     global rating_weights
 
+    # normalise the weights so that they add up to 1
+    # this way we are able to maintain the relative importance of each
+    # feature whilst the user scales the weights to their liking.
+    total_weight = overall_weight + story_weight + animation_weight + character_weight
+
     rating_weights = {
-    'overall_weight' : overall_weight, 
-    'story_weight' : story_weight, 
-    'animation_weight' : animation_weight,
-    'character_weight': character_weight,
+        'overall_weight' : float(overall_weight / total_weight), 
+        'story_weight' : float(story_weight / total_weight), 
+        'animation_weight' : float(animation_weight / total_weight),
+        'character_weight': float(character_weight / total_weight),
     }
 
     return rating_weights
