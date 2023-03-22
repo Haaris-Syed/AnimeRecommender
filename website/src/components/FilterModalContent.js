@@ -12,7 +12,7 @@ function FilterModalContent() {
   // TO DO:
   // 1) Loading indicator for when database is updating (initial launch 
   //  and after customising weights)
-  // 2) Check normalising calculatings with custom weights
+
   
   // ========== OVERALL ==========
   const [overallValue, setOverallValue] = useState(() => {
@@ -95,9 +95,11 @@ function FilterModalContent() {
         type="range"
         min={0}
         max={1}
+        defaultValue={0.5}
         value={overallValue}
         step={0.1}
         onChange={handleOverallSliderChange}
+        //  onChange={(e) => setOverallValue(e.target.valueAsNumber)}
       />
       <h3>Story</h3>
       <h4 style={{ textAlign: "center" }}>{storyValue}</h4>

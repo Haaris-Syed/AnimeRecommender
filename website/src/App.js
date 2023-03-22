@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Home from "./components/Home";
-import Header from "./components/Header";
 import TopAnimeBar from "./components/TopAnimeBar";
 import Navbar from "./components/Navbar";
-import FilterBar from "./components/FilterBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -70,13 +68,7 @@ function App() {
 
   return (
     <div className="App">
-      <Header />
-	  {/* <Router className='menu'>
-          <Navbar />
-          <Routes>
-            <Route/>
-          </Routes>
-        </Router> */}
+      <Navbar />
       <div className="content-wrap">
 		<TopAnimeBar topAnime={topAnime} />
         <Home
