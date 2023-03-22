@@ -4,36 +4,57 @@
     right: 0;
     bottom: 0;
     width: 18%;
-    background-color: #75fad9;
+    background-color: #d4c3c3;
     padding: 1rem;
     overflow-y: auto;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
     z-index: 9999;
-    /* opacity: 0; */
-    transition: transform 0.3s ease-in-out; 
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out; 
 }
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 0;
+    backdrop-filter: blur(1px);
+  }
 
 .filter-button {
     background-color: transparent;
-    color: rgb(33, 113, 116);
     border: none;
     padding: 10px 20px;
     font-size: 25px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
-
-.display-block {
-    display: block;
-    opacity: 1;
-}
   
-.display-none {
-    display: none;
-    opacity: 0;
+.filter-button:hover {
+    color: rgb(33, 113, 116);
+    transform: scale(1.1);
+}
+
+.submit-values {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 150px;  
+}
+
+.button{
+    padding: 8px 32px;
+    font-size: 20px;
+    width: 200px;
+    border-radius: 80px;
+    background-color: rgb(103, 120, 216);
 }
 
 input {
+    padding: 10px;
     height: 1em;
     display: block;
     margin: 0 auto;
@@ -59,4 +80,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-webkit-slider-thumb:active {
     box-shadow: #d46a6a50 0px 0px 0px 11px;
     transition: box-shadow 350ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, left 350ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, bottom 350ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+h3 {
+    padding-top: 40px;
 }

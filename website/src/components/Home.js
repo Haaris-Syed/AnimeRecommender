@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import AnimeCard from "./AnimeCard";
 import Searchbar from "./Searchbar";
 import FilterModal from "./FilterModal";
-import ValueSlider from "./ValueSlider";
+import FilterModalContent from "./FilterModalContent";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
-import "../assets/css/Filters.css";
 import "../assets/css/FilterModal.css";
 
 function Home(props) {
@@ -36,9 +35,10 @@ function Home(props) {
               Here you can change some aspects of the algorithm used to make
               recommendations.
             </p>
-            <ValueSlider />
+            <FilterModalContent showModal={showModal}/>
           </FilterModal>
         )} 
+        {showModal && <div className="overlay"></div>}
       </div>
       <div className="anime-list">
         {props.animeList.map((anime, index) => (

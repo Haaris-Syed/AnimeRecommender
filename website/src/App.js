@@ -71,12 +71,12 @@ function App() {
   return (
     <div className="App">
       <Header />
-	  <Router className='menu'>
+	  {/* <Router className='menu'>
           <Navbar />
           <Routes>
             <Route/>
           </Routes>
-        </Router>
+        </Router> */}
       <div className="content-wrap">
 		<TopAnimeBar topAnime={topAnime} />
         <Home

@@ -133,12 +133,14 @@ def set_feature_weights():#pass in values given by the user on the website
 
     return feature_weights
 
-def set_rating_weights(): #pass in values given by the user on the website
+def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1): #pass in values given by the user on the website
+    global rating_weights
+
     rating_weights = {
-    'overall_weight' : 0.5, 
-    'story_weight' : 0.3, 
-    'animation_weight' : 0.1,
-    'character_weight': 0.1,
+    'overall_weight' : overall_weight, 
+    'story_weight' : story_weight, 
+    'animation_weight' : animation_weight,
+    'character_weight': character_weight,
     }
 
     return rating_weights
@@ -211,6 +213,13 @@ animation_similarities_df = None
 character_similarities_df = None
 
 combined_category_ratings_pivot = None
+
+# rating_weights = rating_weights = {
+    # 'overall_weight' : 0.5, 
+    # 'story_weight' : 0.3, 
+    # 'animation_weight' : 0.1,
+    # 'character_weight': 0.1,
+    # }
 
 # @app.route("/get_anime_df")
 # def get_anime_df():
@@ -289,7 +298,6 @@ def content_based_recommendations(title, cosine_sim, n_recommendations=100):
 
     return recommendations[:n_recommendations+1]
 
-@app.route("/get_cb_recs")
 def get_cb_recs(anime_title):
     global normalised_anime_df, genres_df, cb_cosine_similarity
 
@@ -336,7 +344,8 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
 # only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
 animation_similarities_df, character_similarities_df):
-    rating_weights = set_rating_weights()
+    # rating_weights = set_rating_weights()
+    global rating_weights
 
     combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (character_similarities_df * rating_weights['character_weight']))
 
@@ -355,7 +364,6 @@ def collaborative_filtering_recommendations(anime, combined_category_ratings_piv
 
     return recommendations
 
-@app.route("/get_cf_recs")
 def get_cf_recs(anime_title):
     global combined_category_ratings_pivot
 
@@ -517,6 +525,7 @@ def load_data():
 
     print("CB Done")
 
+    rating_weights = set_rating_weights()
     overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
     story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
@@ -532,6 +541,47 @@ def load_data():
     animation_similarities_df, character_similarities_df)
 
     print("Data Loaded")
+
+@app.route('/update_recommendation_weights')
+def update_recommendation_weights():
+    global rating_weights
+
+    weights = request.args.get('query')
+    print("query weights:", weights)
+    weights = weights.split(',')
+    print(weights)
+
+    overall_weight = float(weights[0])
+    story_weight = float(weights[1])
+    animation_weight = float(weights[2])
+    character_weight = float(weights[3])
+
+    rating_weights = set_rating_weights(overall_weight, story_weight, animation_weight, character_weight)
+    print("NEW WEIGHTS SET")
+
+    update_recommendation_dataframes()
+    print("NEW DATAFRAMES UPDATED")
+
+    return '', 204 # Return an empty response with status code 204
+
+def update_recommendation_dataframes():
+    global anime_with_ratings_df, combined_category_ratings_pivot
+
+    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
+    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
+    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
+    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
+    print("NEW Pivots Done") #takes the longest to compute -> 1min approx
+    # takes roughly 35seconds now without sound and enjoyment 
+
+    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, character_pivot)
+    print("NEW Similarities df Done")
+
+    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    animation_similarities_df, character_similarities_df)
+
+    print("NEW Data Loaded")
 
 if __name__ == "__main__":
     load_data()
