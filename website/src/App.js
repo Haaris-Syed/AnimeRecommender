@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Home from "./components/Home";
 import TopAnimeBar from "./components/TopAnimeBar";
 import Navbar from "./components/Navbar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   const [animeList, setAnimeList] = useState([]);
@@ -17,7 +16,7 @@ function App() {
       res.json()
     );
 
-    setTopAnime(temp.data.slice(0, 5));
+    setTopAnime(temp.data.slice(0, 10));
   };
 
   useEffect(() => {
@@ -64,7 +63,6 @@ function App() {
 
     setAnimeLinks(animeLinks);
   };
-
 
   return (
     <div className="App">

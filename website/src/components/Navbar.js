@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { MenuItems } from "./MenuItems";
 import { Button } from "./Button";
+import * as GiIcons from "react-icons/gi"
 import "../assets/css/Navbar.css";
+
 class Navbar extends Component {
   state = { clicked: false };
 
@@ -13,7 +15,7 @@ class Navbar extends Component {
     return (
       <nav className="NavbarItems">
         <h1 className="navbar-logo">
-          Anime Recommender<i className="fab fa-react"></i>
+          Anime Recommender <GiIcons.GiBrain className="gi-brain"/>
         </h1>
         <div className="menu-icon" onClick={this.handleClick}>
           <i

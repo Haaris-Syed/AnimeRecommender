@@ -6,6 +6,7 @@ import FilterModalContent from "./FilterModalContent";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/FilterModal.css";
+import { GiBottleCap } from "react-icons/gi";
 
 function Home(props) {
   const [showModal, setShowModal] = useState(false);
@@ -30,8 +31,9 @@ function Home(props) {
             <button className="filter-button">
               <AiIcons.AiOutlineClose onClick={toggleModal} />
             </button>
-            <h2>Recommendation Algorithm</h2>
-            <p>
+            <h2 style={{color: '#fff', padding: '0.5rem', alignContent: 'center'}}>
+              Recommendation Algorithm</h2>
+            <p style={{color: '#fff', padding: '0.5rem', alignContent: 'center'}}>
               Here you can change some aspects of the algorithm used to make
               recommendations.
             </p>

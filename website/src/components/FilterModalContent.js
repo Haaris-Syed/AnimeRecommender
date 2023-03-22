@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "./Button";
+import '../assets/css/FilterModal.css'
 
 function FilterModalContent() {
 
@@ -90,7 +92,7 @@ function FilterModalContent() {
   return (
     <div>
       <h3>Overall</h3>
-      <h4 style={{ textAlign: "center" }}>{overallValue}</h4>
+      <h4>{overallValue}</h4>
       <input
         type="range"
         min={0}
@@ -102,7 +104,7 @@ function FilterModalContent() {
         //  onChange={(e) => setOverallValue(e.target.valueAsNumber)}
       />
       <h3>Story</h3>
-      <h4 style={{ textAlign: "center" }}>{storyValue}</h4>
+      <h4>{storyValue}</h4>
       <input
         type="range"
         min={0}
@@ -112,7 +114,7 @@ function FilterModalContent() {
         onChange={handleStorySliderChange}
       />
       <h3>Animation</h3>
-      <h4 style={{ textAlign: "center" }}>{animationValue}</h4>
+      <h4>{animationValue}</h4>
       <input
         type="range"
         min={0}
@@ -122,7 +124,7 @@ function FilterModalContent() {
         onChange={handleAnimationSliderChange}
       />
       <h3>Character</h3>
-      <h4 style={{ textAlign: "center" }}>{characterValue}</h4>
+      <h4>{characterValue}</h4>
       <input
         type="range"
         min={0}
