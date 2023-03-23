@@ -3,6 +3,7 @@ import { MenuItems } from "./MenuItems";
 import { Button } from "./Button";
 import * as GiIcons from "react-icons/gi"
 import "../assets/css/Navbar.css";
+import { Link } from "react-router-dom";
 
 class Navbar extends Component {
   state = { clicked: false };
@@ -15,7 +16,8 @@ class Navbar extends Component {
     return (
       <nav className="NavbarItems">
         <h1 className="navbar-logo">
-          Anime Recommender <GiIcons.GiBrain className="gi-brain"/>
+          <a className="nav-links-title" href="/">Anime Recommender</a> 
+          <GiIcons.GiBrain className="gi-brain"/>
         </h1>
         <div className="menu-icon" onClick={this.handleClick}>
           <i
@@ -25,7 +27,8 @@ class Navbar extends Component {
         <ul className={this.state.clicked ? "nav-menu active" : "nav-menu"}>
           {MenuItems.map((item, index) => {
             return (
-              <li key={index}>
+              <li key={index} className={item.cName}>
+                {/* <Link to={item.url}>{item.title}</Link> */}
                 <a className={item.cName} href={item.url}>
                   {item.title}
                 </a>
@@ -33,7 +36,7 @@ class Navbar extends Component {
             );
           })}
         </ul>
-		<Button>Sign Up</Button>
+		      <Button>Sign Up</Button>
       </nav>
     );
   }

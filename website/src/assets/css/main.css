@@ -21,6 +21,7 @@ header h1 strong {
 
 .content-wrap {
   display: flex;
+  padding-top: 50px;
 }
 .content-wrap aside {
   flex: 1 1 250px;

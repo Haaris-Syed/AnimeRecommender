@@ -6,7 +6,6 @@ import FilterModalContent from "./FilterModalContent";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/FilterModal.css";
-import { GiBottleCap } from "react-icons/gi";
 
 function Home(props) {
   const [showModal, setShowModal] = useState(false);
@@ -37,7 +36,7 @@ function Home(props) {
               Here you can change some aspects of the algorithm used to make
               recommendations.
             </p>
-            <FilterModalContent showModal={showModal}/>
+            <FilterModalContent />
           </FilterModal>
         )} 
         {showModal && <div className="overlay"></div>}

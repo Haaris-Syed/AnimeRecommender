@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "./Button";
 import '../assets/css/FilterModal.css'
 
 function FilterModalContent() {
@@ -9,7 +8,7 @@ function FilterModalContent() {
   // const [animationValue, setAnimationValue] = useState(0.1);
   // const [characterValue, setCharacterValue] = useState(0.1);
   
-  const [weightString, setWeightString] = useState('')
+  const [weightString, setWeightString] = useState('') //0.5, 0.3, 0.1, 0.1
 
   // TO DO:
   // 1) Loading indicator for when database is updating (initial launch 
@@ -90,14 +89,13 @@ function FilterModalContent() {
   // console.log(sliderValue)
 
   return (
-    <div>
+    <div className="modal-values">
       <h3>Overall</h3>
       <h4>{overallValue}</h4>
       <input
         type="range"
         min={0}
         max={1}
-        defaultValue={0.5}
         value={overallValue}
         step={0.1}
         onChange={handleOverallSliderChange}

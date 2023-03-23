@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import Home from "./components/Home";
 import TopAnimeBar from "./components/TopAnimeBar";
 import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Form from "./components/Form";
+import Login from "./components/Login";
 
 function App() {
   const [animeList, setAnimeList] = useState([]);
@@ -66,9 +69,16 @@ function App() {
 
   return (
     <div className="App">
-      <Navbar />
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route exact path="/profile" Component={Form}></Route>
+          <Route exact path="/login" Component={Login}></Route>
+          <Route exact path="/signup" Component={Form}></Route>
+        </Routes>
+      </Router>
       <div className="content-wrap">
-		<TopAnimeBar topAnime={topAnime} />
+        <TopAnimeBar topAnime={topAnime} />
         <Home
           handleSearch={handleSearch}
           search={search}
@@ -78,8 +88,6 @@ function App() {
           animeImages={animeImages}
           animeLinks={animeLinks}
         />
-      </div>
-      <div className="content-wrap">  
       </div>
     </div>
   );
