@@ -1,11 +1,10 @@
-from dotenv import load_dotenv
-import os
 import redis
+import secrets
 
-load_dotenv()
+secret_key = secrets.token_hex(16)
 
 class ApplicationConfig:
-    SECRET_KEY = os.environ["SECRET_KEY"]
+    SECRET_KEY = secret_key
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True

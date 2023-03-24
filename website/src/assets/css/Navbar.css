@@ -42,10 +42,28 @@
   transition: all 0.2s ease-out;
 }
 
+.logout {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+}  
+
+ .logout:hover {
+  background-color: #ffffff;
+  border-radius: 4px;
+  transition: all 0.2s ease-out;
+}  
+
 .nav-links-title {
   color: #fff;
   text-decoration: none;
   padding: 0.5rem 0.5rem;
+}
+
+.nav-link-signup {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
 }
 
 .fa-bars {
@@ -85,18 +103,6 @@
   z-index: 1;
 }
 
-.nav-links {
-  text-align: center;
-  padding: 2rem;
-  width: 100%;
-  display: table;
-}
-
-.nav-links:hover {
-  background-color: #7577fa;
-  border-radius: 0;
-}
-
 .navbar-logo {
   position: absolute;
   top: 0;
@@ -119,26 +125,7 @@
   font-size: 2rem;
 }
 
-.nav-links-mobile {
-  display: block;
-  text-align: center;
-  padding: 1.5rem;
-  margin: 2rem auto;
-  border-radius: 4px;
-  width: 80%;
-  background: #4ad9e4;
-  text-decoration: none;
-  color:#fff;
-  font-size: 1.5rem;
-}
-
-.nav-links-mobile:hover {
-  background: #fff;
-  color: #6568F4;
-  transition: 250ms;
-}
-
-Button {
+.btn--primary {
   display: none;
 }
 }

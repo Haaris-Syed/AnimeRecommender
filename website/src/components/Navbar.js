@@ -1,45 +1,86 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { MenuItems } from "./MenuItems";
+import { LoggedInMenuItems } from "./LoggedInMenuItems";
 import { Button } from "./Button";
-import * as GiIcons from "react-icons/gi"
+import * as GiIcons from "react-icons/gi";
 import "../assets/css/Navbar.css";
-import { Link } from "react-router-dom";
+import httpClient from "./httpClient";
 
-class Navbar extends Component {
-  state = { clicked: false };
+function Navbar() {
+  const [user, setUser] = useState(null);
 
-  handleClick = () => {
-    this.setState({ clicked: !this.state.clicked });
+  const logoutUser = async () => {
+    await httpClient.get("http://127.0.0.1:5000/logout");
+
+    window.location.href = "/";
   };
 
-  render() {
-    return (
-      <nav className="NavbarItems">
-        <h1 className="navbar-logo">
-          <a className="nav-links-title" href="/">Anime Recommender</a> 
-          <GiIcons.GiBrain className="gi-brain"/>
-        </h1>
-        <div className="menu-icon" onClick={this.handleClick}>
-          <i
-            className={this.state.clicked ? "fas fa-times" : "fas fa-bars"}
-          ></i>
-        </div>
-        <ul className={this.state.clicked ? "nav-menu active" : "nav-menu"}>
-          {MenuItems.map((item, index) => {
-            return (
-              <li key={index} className={item.cName}>
-                {/* <Link to={item.url}>{item.title}</Link> */}
-                <a className={item.cName} href={item.url}>
-                  {item.title}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-		      <Button>Sign Up</Button>
-      </nav>
-    );
-  }
+  // just cheat and set the user to not null
+  // delete all that extra form input checking and just keep css
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       console.log("USER: ", user);
+  // const resp = await httpClient.get(
+  //   "http://127.0.0.1:5000/get_current_user"
+  // );
+
+  //       // console.log("Checking: ", resp.data.id)
+  //       // setUser(resp.data.id);
+  //       setUser('Logged In')
+  //     } catch (error) {
+  //       console.log("Not Authenticated");
+  //     }
+  //   })();
+  // }, []);
+
+  console.log("USER AFTER: ", user);
+  return (
+    <nav className="NavbarItems">
+      <h1 className="navbar-logo">
+        <a className="nav-links-title" href="/">
+          Anime Recommender
+        </a>
+        <GiIcons.GiBrain className="gi-brain" />
+      </h1>
+      <ul className="nav-menu">
+        {user != null ? (
+          <>
+            {LoggedInMenuItems.map((item, index) => {
+              return (
+                <li key={index} className={item.cName}>
+                  <a className={item.cName} href={item.url}>
+                    {item.title}
+                  </a>
+                </li>
+              );
+            })}
+            <li className="logout">
+              <Button onClick={logoutUser}>Log Out</Button>
+            </li>
+          </>
+        ) : (
+          <>
+            {MenuItems.map((item, index) => {
+              return (
+                <li key={index} className={item.cName}>
+                  <a className={item.cName} href={item.url}>
+                    {item.title}
+                  </a>
+                </li>
+              );
+            })}
+            <Button>
+              <a className="nav-link-signup" href="/signup">
+                Sign Up
+              </a>
+            </Button>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
 }
 
 export default Navbar;

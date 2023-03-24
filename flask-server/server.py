@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask, request, session, jsonify
 
 from collections import defaultdict
 import pandas as pd
@@ -593,11 +593,12 @@ def update_recommendation_dataframes():
 from models import db, User
 from config import ApplicationConfig
 from flask_bcrypt import Bcrypt
-from flask.json import jsonify
 from flask_session import Session
+from flask_cors import CORS
 
 app.config.from_object(ApplicationConfig)
 
+CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 server_session = Session(app)
 db.init_app(app)
@@ -605,9 +606,10 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-@app.route("/@me")
+@app.route("/get_current_user")
 def get_current_user():
     user_id = session.get("user_id")
+    # user_id = '8b1d51ae8b494ae883450fa72c6077c5'
 
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
@@ -621,8 +623,10 @@ def get_current_user():
 
 @app.route('/register', methods=['POST'])
 def register_user():
-    email = request.json['email']
-    password = request.json['password']
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
 
     user_exists = User.query.filter_by(email=email).first() is not None
 
@@ -641,12 +645,12 @@ def register_user():
         "email": new_user.email
     })
 
-    return ''
-
 @app.route("/login", methods=["POST"])
 def login_user():
-    email = request.json["email"]
-    password = request.json["password"]
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
 
     user = User.query.filter_by(email=email).first()
 
@@ -654,15 +658,19 @@ def login_user():
         return jsonify({"error": "Unauthorized"}), 401
 
     if not bcrypt.check_password_hash(user.password, password):
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized Password"}), 401
     
     session["user_id"] = user.id
 
     return jsonify({
         "id": user.id,
-        "email": user.email
+        "email": user.email,
     })
 
+@app.route("/logout", methods=["POST"])
+def logout_user():
+    session.pop("user_id")
+    return "200"
 
 if __name__ == "__main__":
     load_data()
