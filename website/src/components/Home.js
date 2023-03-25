@@ -3,14 +3,11 @@ import AnimeCard from "./AnimeCard";
 import Searchbar from "./Searchbar";
 import FilterModal from "./FilterModal";
 import FilterModalContent from "./FilterModalContent";
+import TopAnimeBar from "./TopAnimeBar";
+import { Link } from "react-router-dom";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
-import * as FiIcons from "react-icons/fi";
-import TopAnimeBar from "./TopAnimeBar";
 import "../assets/css/FilterModal.css";
-import { Button } from "./Button";
-import { Link } from "react-router-dom";
-import SavedAnime from "./SavedAnime";
 
 function Home() {
   const [animeList, setAnimeList] = useState([]);
@@ -78,17 +75,83 @@ function Home() {
   const toggleModal = () => {
     setShowModal(!showModal);
   };
-  
-  const [savedAnime, setSavedAnime] = useState([])
+
+  const [savedAnime, setSavedAnime] = useState([]);
+
+  useEffect(() => {
+    setSavedAnime(JSON.parse(localStorage.getItem("savedAnimeList")) || []);
+  }, []);
+
+  // this will be used to check if we need to add or remove a given title
+  // by simply using the anime title
+  const [savedAnimeTitles, setSavedAnimeTitles] = useState([]);
+
+  useEffect(() => {
+    setSavedAnimeTitles(
+      JSON.parse(localStorage.getItem("savedAnimeTitles")) || []
+    );
+  }, []);
 
   const handleAddAnime = (animeTitle) => {
-    console.log(animeTitle)
-    const animeToAdd = animeList.find(anime => animeTitle === anime)
+    const index = animeList.indexOf(animeTitle);
 
-    setSavedAnime([...savedAnime, animeToAdd]);
+    const anime = animeList[index];
+    const animeLink = animeLinks[index];
+    const animeImage = animeImages[index];
+    const animeID = animeIDs[index];
+
+    // checks that the list is not empty before checking for duplicate titles
+    // as this leads to an error
+    if (savedAnimeTitles) {
+      if (!savedAnimeTitles.includes(animeTitle)) {
+        setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
+        setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
+      }
+    } 
+		// if the list is empty, just update both lists
+		else{
+			setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
+      setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
+		}
+    console.log(animeTitle);
+
+    localStorage.setItem("savedAnimeList", JSON.stringify(savedAnime));
+    localStorage.setItem("savedAnimeTitles", JSON.stringify(savedAnimeTitles));
   };
 
-  console.log(savedAnime)
+  const handleRemoveAnime = (animeTitle) => {
+    // checks that the list is not empty before and if the title is present
+    // in the list as these are both conditions needed to remove the anime
+    if (savedAnimeTitles && savedAnimeTitles.includes(animeTitle)) {
+      console.log(animeTitle);
+      const updatedAnimeSaved = savedAnime.filter(
+        (anime) => anime[0] !== animeTitle
+      );
+      const updatedAnimeTitles = savedAnimeTitles.filter(
+        (anime) => anime !== animeTitle
+      );
+
+      setSavedAnime(updatedAnimeSaved);
+      setSavedAnimeTitles(updatedAnimeTitles);
+
+      localStorage.setItem("savedAnimeList", JSON.stringify(savedAnime));
+      localStorage.setItem(
+        "savedAnimeTitles",
+        JSON.stringify(savedAnimeTitles)
+      );
+    }
+  };
+
+  //storage list is one update behind
+  console.log(savedAnime);
+  console.log(
+    "STORAGE LIST: ",
+    JSON.parse(localStorage.getItem("savedAnimeList"))
+  );
+  console.log(
+    "STORAGE TITLE LIST: ",
+    JSON.parse(localStorage.getItem("savedAnimeTitles"))
+  );
 
   return (
     <div className="content-wrap">
@@ -140,22 +203,21 @@ function Home() {
               animeImage={animeImages[index]}
               animeLink={animeLinks[index]}
               onAddAnime={handleAddAnime}
+              onRemoveAnime={handleRemoveAnime}
               key={index}
             />
           ))}
         </div>
-        {/* <Button> */}
-       {/* <div> */}
-        <Link to='/saved' state={savedAnime}>View Saved</Link>
-        {/* </Button> */}
-        {/* </div> */}
-        {/* {savedAnime.map((anime, index) => (
-          <li key={index}>{anime}</li>
-        ))} */}
+        <Link
+          to="/saved"
+          state={JSON.parse(localStorage.getItem("savedAnimeList"))}
+        >
+          View Saved
+        </Link>
       </main>
     </div>
   );
 }
 
 export default Home;
-// () => addAnimeToSaved(props.index, props.anime, props.animeLink, props.animeImage)
+// savedAnime
