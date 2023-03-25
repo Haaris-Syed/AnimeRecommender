@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SavedAnime from "./components/SavedAnime";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" Component={Home}></Route>
+          <Route path="/saved" Component={SavedAnime}></Route>
           <Route path="/login" Component={Login}></Route>
           <Route path="/profile" Component={Signup}></Route>
           <Route path="/signup" Component={Signup}></Route>

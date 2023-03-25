@@ -5,8 +5,12 @@ import FilterModal from "./FilterModal";
 import FilterModalContent from "./FilterModalContent";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
+import * as FiIcons from "react-icons/fi";
 import TopAnimeBar from "./TopAnimeBar";
 import "../assets/css/FilterModal.css";
+import { Button } from "./Button";
+import { Link } from "react-router-dom";
+import SavedAnime from "./SavedAnime";
 
 function Home() {
   const [animeList, setAnimeList] = useState([]);
@@ -74,6 +78,17 @@ function Home() {
   const toggleModal = () => {
     setShowModal(!showModal);
   };
+  
+  const [savedAnime, setSavedAnime] = useState([])
+
+  const handleAddAnime = (animeTitle) => {
+    console.log(animeTitle)
+    const animeToAdd = animeList.find(anime => animeTitle === anime)
+
+    setSavedAnime([...savedAnime, animeToAdd]);
+  };
+
+  console.log(savedAnime)
 
   return (
     <div className="content-wrap">
@@ -124,13 +139,23 @@ function Home() {
               animeID={animeIDs[index]}
               animeImage={animeImages[index]}
               animeLink={animeLinks[index]}
+              onAddAnime={handleAddAnime}
               key={index}
             />
           ))}
         </div>
+        {/* <Button> */}
+       {/* <div> */}
+        <Link to='/saved' state={savedAnime}>View Saved</Link>
+        {/* </Button> */}
+        {/* </div> */}
+        {/* {savedAnime.map((anime, index) => (
+          <li key={index}>{anime}</li>
+        ))} */}
       </main>
     </div>
   );
 }
 
 export default Home;
+// () => addAnimeToSaved(props.index, props.anime, props.animeLink, props.animeImage)
