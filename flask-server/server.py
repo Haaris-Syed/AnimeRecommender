@@ -86,69 +86,48 @@ def get_merged_df(anime_df, user_ratings_df):
 
     return anime_with_ratings_df
 
-def get_genre_df(normalised_anime_df):
-    weights = {
-        'genre': 0.35,
-        'members_norm': 0.1,
-        'rating_norm': 0.35,
-        'popularity_norm': 0.1,
-        'episodes_norm': 0.1
-    }
-
+def get_genre_df(normalised_anime_df, genre_weight=0.4):
     genres_df = normalised_anime_df['genre'].str.get_dummies(sep=', ').astype(int)
-    genres_df = genres_df.apply(lambda x : x * weights['genre'])
+    genres_df = genres_df.apply(lambda x : x * genre_weight)
 
     return genres_df
 
 def get_normalised_df():
-    global anime_df
+    global anime_df, feature_weights
 
     normalised_anime_df = anime_df.copy()
 
-    weights = set_feature_weights()
+    # feature_weights = set_feature_weights()
 
-    normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * weights['members_norm']
-    normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * weights['rating_norm']
-    normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * weights['popularity_norm']
-    normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * weights['episodes_norm']
+    normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * feature_weights['members_norm']
+    normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * feature_weights['rating_norm']
+    normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * feature_weights['popularity_norm']
+    normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * feature_weights['episodes_norm']
     
     normalised_anime_df.drop(['members', 'rating', 'popularity', 'episodes'], axis=1, inplace=True)
     
     # # get hot encoding of genres and merge with our main df
-    genres_df = get_genre_df(normalised_anime_df)
+    genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
 
     # normalised_anime_df.drop('genre', axis=1, inplace=True)
     normalised_anime_df = pd.concat([normalised_anime_df, genres_df], axis=1)
 
     return normalised_anime_df
 
-def set_feature_weights():#pass in values given by the user on the website
+def set_feature_weights(genre_weight=0.4, members_weight=0.1, rating_weight=0.3, popularity_weight=0.1, episodes_weight=0.1):#pass in values given by the user on the website
+    global feature_weights
+
+    total_weight = genre_weight + members_weight + rating_weight + popularity_weight + episodes_weight
+
     feature_weights = {
-        'genre': 0.35,
-        'members_norm': 0.1,
-        'rating_norm': 0.35,
-        'popularity_norm': 0.1,
-        'episodes_norm': 0.1
+        'genre': float(genre_weight / total_weight),
+        'members_norm': float(members_weight / total_weight),
+        'rating_norm': float(rating_weight / total_weight),
+        'popularity_norm': float(popularity_weight / total_weight),
+        'episodes_norm': float(episodes_weight / total_weight),
     }
 
     return feature_weights
-
-def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1): #pass in values given by the user on the website
-    global rating_weights
-
-    # normalise the weights so that they add up to 1
-    # this way we are able to maintain the relative importance of each
-    # feature whilst the user scales the weights to their liking.
-    total_weight = overall_weight + story_weight + animation_weight + character_weight
-
-    rating_weights = {
-        'overall_weight' : float(overall_weight / total_weight), 
-        'story_weight' : float(story_weight / total_weight), 
-        'animation_weight' : float(animation_weight / total_weight),
-        'character_weight': float(character_weight / total_weight),
-    }
-
-    return rating_weights
 
 def calculate_cosine_similarity(normalised_anime_df, genres_df):
     features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
@@ -187,25 +166,7 @@ def get_website_anime_df():
 
     return website_anime_df
 
-# ============ Declaring global dataframes ============
-# def generate_global_dataframes():
-#     global anime_df, user_ratings_df, anime_with_ratings_df
-#     # these dataframes will be the basis for all the data prepocessing/manipulation
-#     # in order to help provide recommendations.
-#     # This will remove the need to continously read and clean the data from the csv
-#     # each time.
-#     anime_df = get_anime_df()
-#     user_ratings_df = get_user_ratings_df()
-#     anime_with_ratings_df = get_merged_df()
-
-# these are values/dataframes that will not change in future, so declaring them now
-# will save computation time later
-# anime_df = process_anime_df()
-# user_ratings_df = process_ratings_df()
-# anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
-# normalised_anime_df = get_normalised_df()
-# genres_df = get_genre_df(normalised_anime_df)
-# cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+# ============ Declaring global values/dataframes ============
 
 overall_pivot = None
 story_pivot = None
@@ -221,23 +182,6 @@ combined_category_ratings_pivot = None
 
 content_weight = 0.4
 collaborative_weight = 0.6
-
-# rating_weights = rating_weights = {
-    # 'overall_weight' : 0.5, 
-    # 'story_weight' : 0.3, 
-    # 'animation_weight' : 0.1,
-    # 'character_weight': 0.1,
-    # }
-
-# @app.route("/get_anime_df")
-# def get_anime_df():
-#     global anime_df
-#     return anime_df
-
-# @app.route("/get_ratings_df")
-# def get_ratings_df():
-#     global user_ratings_df
-#     return user_ratings_df
 
 # used in both content-based and collaborative filtering
 # removes anime titles of repeating seasons to diversify the recommendations
@@ -313,7 +257,22 @@ def get_cb_recs(anime_title):
 
 
 # ============ Collaborative filtering ============
+def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1): #pass in values given by the user on the website
+    global rating_weights
 
+    # normalise the weights so that they add up to 1
+    # this way we are able to maintain the relative importance of each
+    # feature whilst the user scales the weights to their liking.
+    total_weight = overall_weight + story_weight + animation_weight + character_weight
+
+    rating_weights = {
+        'overall_weight' : float(overall_weight / total_weight), 
+        'story_weight' : float(story_weight / total_weight), 
+        'animation_weight' : float(animation_weight / total_weight),
+        'character_weight': float(character_weight / total_weight),
+    }
+
+    return rating_weights
 def create_pivot_table(data, value):
     pivot_table = data.pivot_table(index='user_id', columns='name', values=value)
     pivot_table.fillna(0, inplace=True)
@@ -525,6 +484,8 @@ def load_data():
     anime_df = process_anime_df()
     user_ratings_df = process_ratings_df()
     anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+
+    feature_weights = set_feature_weights()
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df)
     cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
@@ -550,27 +511,54 @@ def load_data():
 
     print("Data Loaded")
 
-@app.route('/update_recommendation_weights')
-def update_recommendation_weights():
+@app.route('/update_content_weights')
+def update_content_weights():
+    global feature_weights
+
+    content_weights = request.args.get('query')
+    content_weights = content_weights.split(',')
+
+    genre_weight = float(content_weights[0])
+    members_weight = float(content_weights[1])
+    ratings_weight = float(content_weights[2])
+    popularity_weight = float(content_weights[3])
+    episodes_weight = float(content_weights[4])
+
+    feature_weights = set_feature_weights(genre_weight, members_weight, ratings_weight, popularity_weight, episodes_weight)
+    print("NEW FEATURE WEIGHTS SET")
+
+    return '', 204 # Return an empty response with status code 204
+
+def update_content_dataframes():
+    global normalised_anime_df, cb_cosine_similarity, feature_weights
+
+    normalised_anime_df = get_normalised_df()
+    genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
+    cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+
+    print("NEW Content Data Loaded")
+    
+@app.route('/update_collaborative_weights')
+def update_collaborative_weights():
     global rating_weights
 
-    weights = request.args.get('query')
-    weights = weights.split(',')
+    collaborative_weights = request.args.get('query')
+    collaborative_weights = collaborative_weights.split(',')
 
-    overall_weight = float(weights[0])
-    story_weight = float(weights[1])
-    animation_weight = float(weights[2])
-    character_weight = float(weights[3])
+    overall_weight = float(collaborative_weights[0])
+    story_weight = float(collaborative_weights[1])
+    animation_weight = float(collaborative_weights[2])
+    character_weight = float(collaborative_weights[3])
 
     rating_weights = set_rating_weights(overall_weight, story_weight, animation_weight, character_weight)
     print("NEW WEIGHTS SET")
 
-    update_recommendation_dataframes()
+    update_collaborative_dataframes()
     print("NEW DATAFRAMES UPDATED")
 
     return '', 204 # Return an empty response with status code 204
 
-def update_recommendation_dataframes():
+def update_collaborative_dataframes():
     global anime_with_ratings_df, combined_category_ratings_pivot
 
     overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
@@ -594,9 +582,7 @@ def update_hybrid_weights():
     global content_weight, collaborative_weight
 
     hybrid_weights = request.args.get('query')
-    print("query weights:", hybrid_weights)
     hybrid_weights = hybrid_weights.split(',')
-    print("LIST WEIGHTS:",hybrid_weights)
 
     content_weight = float(hybrid_weights[0])
     collaborative_weight = float(hybrid_weights[1])

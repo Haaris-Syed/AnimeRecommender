@@ -1,17 +1,25 @@
 .recommendation-info {
     text-align: center;
+    padding: 40px;
+    color: #ffffff;
+}
+
+.recommendation-info p{
     padding: 20px;
-    color: #f5aaaa;
-    /* margin-left: 250px;
-    margin-right: 250px; */
 }
 
 .recommendation-info h1 {
     text-shadow: 2px 2px 4px #000000;
 }
 
+.recommendation-info h3{
+    padding-top: 20px;
+    color: #fc8383;
+}
+
 .recommendation-info h4{
     padding: 20px;
+    color: #ea84ee;
 }
 
 .recommendation-info li {
@@ -20,13 +28,12 @@
 }
 
 .recommendation-info-container {
-    /* align-items: center; */
-    margin: 100px auto;
-    width: 1250px;
+    margin: 60px auto;
+    width: 1300px;
     box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.2);
     position: relative;
     border-radius: 10px;
     height: 700px;
     grid-template-columns: 1fr 1fr;
-    background: linear-gradient(90deg, rgb(110,94,254) 0%, rgba(73,63,252,1) 100%);
+    background: linear-gradient(90deg, rgb(89, 97, 199) 0%, rgb(67, 76, 160) 100%);
 }

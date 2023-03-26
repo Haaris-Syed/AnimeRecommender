@@ -100,12 +100,94 @@ function FilterModalContent() {
     setCollaborativeValue(event.target.value);
   };
 
+  const [genreValue, setGenreValue] = useState(() => {
+    const storedValue = localStorage.getItem("genreValue");
+    return storedValue !== null ? JSON.parse(storedValue) : 0.4;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("genreValue", JSON.stringify(genreValue));
+  }, [genreValue]);
+
+  const handleGenreSliderChange = (event) => {
+    setGenreValue(event.target.value);
+  };
+
+  const [memberValue, setMemberValue] = useState(() => {
+    const storedValue = localStorage.getItem("memberValue");
+    return storedValue !== null ? JSON.parse(storedValue) : 0.1;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("memberValue", JSON.stringify(memberValue));
+  }, [memberValue]);
+
+  const handleMemberSliderChange = (event) => {
+    setMemberValue(event.target.value);
+  };
+
+  const [ratingValue, setRatingValue] = useState(() => {
+    const storedValue = localStorage.getItem("ratingValue");
+    return storedValue !== null ? JSON.parse(storedValue) : 0.3;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("ratingValue", JSON.stringify(ratingValue));
+  }, [ratingValue]);
+
+  const handleRatingSliderChange = (event) => {
+    setRatingValue(event.target.value);
+  };
+
+  const [popularityValue, setPopularityValue] = useState(() => {
+    const storedValue = localStorage.getItem("popularityValue");
+    return storedValue !== null ? JSON.parse(storedValue) : 0.1;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("popularityValue", JSON.stringify(popularityValue));
+  }, [popularityValue]);
+
+  const handlePopularitySliderChange = (event) => {
+    setPopularityValue(event.target.value);
+  };
+
+  const [episodesValue, setEpisodesValue] = useState(() => {
+    const storedValue = localStorage.getItem("episodesValue");
+    return storedValue !== null ? JSON.parse(storedValue) : 0.1;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("episodesValue", JSON.stringify(episodesValue));
+  }, [episodesValue]);
+
+  const handleEpisodesSliderChange = (event) => {
+    setEpisodesValue(event.target.value);
+  };
+
   // FEELS LIKE THE BUTTON IS ONE CLICK BEHIND?????
   // FIRST CLICK AFTER ADJUSTING VALUES DOESNT WORK?
-  const [weightString, setWeightString] = useState(""); //0.5, 0.3, 0.1, 0.1
+  const [contentWeightString, setContentWeightString] = useState("");
+  const [collaborativeWeightString, setCollaborativeWeightString] = useState("");
 
-  const update_recommendation_weights = async () => {
-    setWeightString(
+  const update_content_weights = async () => {
+    setContentWeightString(
+      genreValue +
+        "," +
+        memberValue +
+        "," +
+        ratingValue +
+        "," +
+        popularityValue +
+        "," +
+        episodesValue
+    );
+
+    await fetch(`/update_content_weights?query=${contentWeightString}`);
+  };
+
+  const update_collaborative_weights = async () => {
+    setCollaborativeWeightString(
       overallValue +
         "," +
         storyValue +
@@ -115,7 +197,7 @@ function FilterModalContent() {
         characterValue
     );
 
-    await fetch(`/update_recommendation_weights?query=${weightString}`);
+    await fetch(`/update_collaborative_weights?query=${collaborativeWeightString}`);
   };
 
   const [hybridWeightString, setHybridWeightString] = useState("");
@@ -127,19 +209,48 @@ function FilterModalContent() {
   };
 
   const update_weights = async () => {
-    await update_recommendation_weights();
+    await update_content_weights();
+    await update_collaborative_weights();
     await update_hybrid_weights();
   };
   // console.log(`/update_recommendation_weights?query=${weightString}`)
 
   // console.log((typeof weightString == 'string')
   // console.log(sliderValue)
-  const FilterWeightItems = [
+  const ContentWeightItems = [
     {
       title: "Content-based filtering",
       value: contentValue,
       handleChange: handleContentSliderChange,
     },
+    {
+      title: "Genre Similarity",
+      value: genreValue,
+      handleChange: handleGenreSliderChange,
+    },
+    {
+      title: "Members Similarity",
+      value: memberValue,
+      handleChange: handleMemberSliderChange,
+    },
+    {
+      title: "Rating Similarity",
+      value: ratingValue,
+      handleChange: handleRatingSliderChange,
+    },
+    {
+      title: "Popularity Similarity",
+      value: popularityValue,
+      handleChange: handlePopularitySliderChange,
+    },
+    {
+      title: "Episode Similarity",
+      value: episodesValue,
+      handleChange: handleEpisodesSliderChange,
+    }
+  ];
+
+  const CollaborativeWeightItems = [
     {
       title: "Collaborative based filtering",
       value: collaborativeValue,
@@ -151,7 +262,7 @@ function FilterModalContent() {
       handleChange: handleOverallSliderChange,
     },
     {
-      title: "Story filtering",
+      title: "Story",
       value: storyValue,
       handleChange: handleStorySliderChange,
     },
@@ -166,9 +277,11 @@ function FilterModalContent() {
       handleChange: handleCharacterSliderChange,
     },
   ];
+
   return (
     <div className="modal-values">
-      {FilterWeightItems.map((slider, index) => {
+      <h2>Content-based Filtering Weights</h2>
+      {ContentWeightItems.map((slider, index) => {
         return (
           <ValueSlider
           key={index}
@@ -178,68 +291,17 @@ function FilterModalContent() {
         />
         );  
       })}
-      {/* <h3>Content-based filtering</h3>
-      <h4>{contentValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={contentValue}
-        step={0.1}
-        onChange={handleContentSliderChange}
-      />
-      <h3>Collaborative Filtering</h3>
-      <h4>{collaborativeValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={collaborativeValue}
-        step={0.1}
-        onChange={handleCollaborativeSliderChange}
-      />
-      <h3>Overall</h3>
-      <h4>{overallValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={overallValue}
-        step={0.1}
-        onChange={handleOverallSliderChange}
-        //  onChange={(e) => setOverallValue(e.target.valueAsNumber)}
-      />
-      <h3>Story</h3>
-      <h4>{storyValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={storyValue}
-        step={0.1}
-        onChange={handleStorySliderChange}
-      />
-      <h3>Animation</h3>
-      <h4>{animationValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={animationValue}
-        step={0.1}
-        onChange={handleAnimationSliderChange}
-      />
-      <h3>Character</h3>
-      <h4>{characterValue}</h4>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        value={characterValue}
-        step={0.1}
-        onChange={handleCharacterSliderChange}
-      /> */}
-
+      <h2>Collaborative Filtering Weights</h2>
+      {CollaborativeWeightItems.map((slider, index) => {
+        return (
+          <ValueSlider
+          key={index}
+          title={slider.title}
+          value={slider.value}
+          handleChange={slider.handleChange}
+        />
+        );  
+      })}
       <div className="submit-values">
         <button className="button" onClick={update_weights}>
           Done
@@ -250,4 +312,3 @@ function FilterModalContent() {
 }
 
 export default FilterModalContent;
-// update_recommendation_weights

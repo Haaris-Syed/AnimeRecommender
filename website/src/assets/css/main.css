@@ -64,6 +64,13 @@ header h1 strong {
   align-items: center;
 }
 
+.content-wrap main .home-head-browse {
+  display: flex;
+  justify-content: center;
+  margin-right:350px;
+  align-items: center;
+}
+
 .content-wrap main .anime-list {
   display: flex;
   flex-wrap: wrap;

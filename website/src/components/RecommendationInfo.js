@@ -8,24 +8,34 @@ function RecommendationInfo() {
         <h1>Recommendation Information</h1>
         <h4>
           Upon clicking the filters icon next to the searchbar on the homepage,
-          sliders with different values which you can adjust will appear on
-          screen. These values are the weights used within the recommendation
-          algorithm. With each value there is an assigned category.
-          <li>Content-based filtering: reflects a user's overall satisfaction of an anime</li>
-          <li>Collaborative filtering: reflects how good the story is of an anime.</li>
-          <li>Overall: reflects a user's overall satisfaction of an anime</li>
+          sliders with different values will appear on screen. These values are
+          the weights used within the recommendation algorithm and can be
+          altered to your liking. Each slider represents a similarity type that
+          is used to determine the similarity between anime.
+          <h3>Content-based filtering:</h3>
+          <p>
+            Anime features, such as their genre, popularity, and average rating,
+            are used to determine the similarity between different animes. Here,
+            you are able to adjust the values of each similarity type. Changing
+            these values updates how much of each similarity type will be used
+            in the overall recommendation algorithm.
+          </p>
+          <h3>Collaborative filtering:</h3>
+          <p>
+            Here, ratings given to animes by other users is the main factor for
+            determining the similarity between anime. The ratings are separated
+            into sub categories where each slider represents a different
+            similarity type. Changing these values updates how much each
+            similarity type will be used in the overall recommendation
+            algorithm.
+          </p>
+          {/* <li>Overall: reflects a user's overall satisfaction of an anime</li>
           <li>Story: reflects how good the story is of an anime.</li>
           <li>
             Character: reflects character development, how likeable the
             characters are and their overall influence in an anime.
           </li>
-          <li>Animation: reflects the animation quality of an anime</li>
-        </h4>
-        <h4>
-          With each of these categories, you can adjust the values to tailor to
-          your needs. Do you want animes that have really good animation? Select
-          a higher value for the Animation category. Is the story more important
-          to you? Give it a higher value.
+          <li>Animation: reflects the animation quality of an anime</li> */}
         </h4>
         <h4>
           Once you have adjusted the values to your liking, press the "Done"
