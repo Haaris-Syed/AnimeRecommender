@@ -26,8 +26,8 @@ function Navbar() {
   //   "http://127.0.0.1:5000/get_current_user"
   // );
 
-  //       // console.log("Checking: ", resp.data.id)
-  //       // setUser(resp.data.id);
+  // //       // console.log("Checking: ", resp.data.id)
+  // //       // setUser(resp.data.id);
   //       setUser('Logged In')
   //     } catch (error) {
   //       console.log("Not Authenticated");

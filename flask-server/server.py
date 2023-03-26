@@ -219,6 +219,9 @@ character_similarities_df = None
 
 combined_category_ratings_pivot = None
 
+content_weight = 0.4
+collaborative_weight = 0.6
+
 # rating_weights = rating_weights = {
     # 'overall_weight' : 0.5, 
     # 'story_weight' : 0.3, 
@@ -386,9 +389,9 @@ def get_cf_recs(anime_title):
 
 # ============ Hybrid Recommendations ============
 
-def combined_recommendations(anime_name, num_recommendations=50, content_weight=0.4, collaborative_weight=0.6):
-    global combined_category_ratings_pivot
-    
+def combined_recommendations(anime_name, num_recommendations=50):
+    global combined_category_ratings_pivot, content_weight, collaborative_weight
+    # , content_weight=0.4, collaborative_weight=0.6
     # if anime_name not in combined_category_ratings_pivot.index:
     #     return []
 
@@ -552,9 +555,7 @@ def update_recommendation_weights():
     global rating_weights
 
     weights = request.args.get('query')
-    print("query weights:", weights)
     weights = weights.split(',')
-    print(weights)
 
     overall_weight = float(weights[0])
     story_weight = float(weights[1])
@@ -588,6 +589,19 @@ def update_recommendation_dataframes():
 
     print("NEW Data Loaded")
 
+@app.route('/update_hybrid_weights')
+def update_hybrid_weights():
+    global content_weight, collaborative_weight
+
+    hybrid_weights = request.args.get('query')
+    print("query weights:", hybrid_weights)
+    hybrid_weights = hybrid_weights.split(',')
+    print("LIST WEIGHTS:",hybrid_weights)
+
+    content_weight = float(hybrid_weights[0])
+    collaborative_weight = float(hybrid_weights[1])
+
+    return '', 204 # Return an empty response with status code 204
 
 # ========== USER LOGIN/AUTHENTICATION FUNCTIONS ==========
 from models import db, User

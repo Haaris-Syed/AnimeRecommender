@@ -11,6 +11,8 @@ function RecommendationInfo() {
           sliders with different values which you can adjust will appear on
           screen. These values are the weights used within the recommendation
           algorithm. With each value there is an assigned category.
+          <li>Content-based filtering: reflects a user's overall satisfaction of an anime</li>
+          <li>Collaborative filtering: reflects how good the story is of an anime.</li>
           <li>Overall: reflects a user's overall satisfaction of an anime</li>
           <li>Story: reflects how good the story is of an anime.</li>
           <li>

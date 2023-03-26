@@ -11,6 +11,9 @@ function Login({ submitForm }) {
     validate
   );
 
+  // MAYBE STORE LOGIN DETAILS AND STUFF IN LOCAL STORAGE? WHEN CALLING THE 
+  // GET CURRENT USER FUNCTION
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 

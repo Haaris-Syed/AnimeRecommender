@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
@@ -9,13 +9,6 @@ import RecommendationInfo from "./components/RecommendationInfo";
 import BrowseAnime from "./components/BrowseAnime";
 
 function App() {
-  const [savedList, setSavedList] = useState([]);
-
-  const value = useMemo(
-    () => ({ savedList, setSavedList }),
-    [savedList, setSavedList]
-  );
-
   return (
     <div className="App">
       <Router>
