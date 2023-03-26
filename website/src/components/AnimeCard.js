@@ -38,12 +38,11 @@ function AnimeCard(props) {
         </div>
         ) : (
           <div>
-          <button>
+          {/* <button>
           <AiIcons.AiOutlineMinusCircle onClick={removeAnimeFromSaved} />
-        </button>
+        </button> */}
         </div>
         )}
-        
       </h3>
     </article>
   );

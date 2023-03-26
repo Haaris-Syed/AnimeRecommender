@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { useLocation } from "react-router";
 import AnimeCard from "./AnimeCard";
 import "../assets/css/SavedAnime.css";
@@ -6,7 +6,15 @@ import "../assets/css/SavedAnime.css";
 function SavedAnime(animeList) {
   const { state } = useLocation();
 
-  // localStorage.setItem('savedAnimeList', JSON.stringify(state))
+  // const [updatedSavedList, setUpdatedSavedList] = useState([])
+
+  // const handleRemoveAnime = (animeTitle) => {
+  //   const updatedList = state.filter(anime => anime[0] !== animeTitle)
+
+  //   setUpdatedSavedList(updatedList)
+  // }
+
+  // localStorage.setItem('savedAnimeList', JSON.stringify(updatedSavedList))
 
   const test = () => {
     console.log(animeList);
@@ -14,7 +22,9 @@ function SavedAnime(animeList) {
   };
   return (
     <div className="saved">
-      <h1>Here are the animes you saved!</h1>
+      <h1 style={{'marginTop': '20px'}}>
+        Here are the animes you saved!
+        </h1>
       <div className="content-wrap">
         <main>
         <div className="anime-list">

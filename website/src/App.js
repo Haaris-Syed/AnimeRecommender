@@ -5,7 +5,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SavedAnime from "./components/SavedAnime";
-// import { Context } from "./Context";
+import RecommendationInfo from "./components/RecommendationInfo";
+import BrowseAnime from "./components/BrowseAnime";
 
 function App() {
   const [savedList, setSavedList] = useState([]);
@@ -21,12 +22,11 @@ function App() {
         <Navbar />
         <Routes>
             <Route path="/" Component={Home}></Route>
+            <Route path="/browse" Component={BrowseAnime}></Route>
+            <Route path="/information" Component={RecommendationInfo}></Route>
             <Route path="/saved" Component={SavedAnime}></Route>
             <Route path="/login" Component={Login}></Route>
-            <Route path="/profile" Component={Signup}></Route>
             <Route path="/signup" Component={Signup}></Route>
-            <Route path="/logout" Component={Signup}></Route>
-            <Route path="/saved" Component={Signup}></Route>
         </Routes>
       </Router>
     </div>

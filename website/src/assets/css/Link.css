@@ -1,0 +1,24 @@
+.saved-anime {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    width: 13%;
+    display: block;
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    background-color: #6d76f7;
+    border-radius: 10px;
+  }
+  
+.saved-anime:hover {
+    background-color: #4e54a7;
+    border-radius: 10px;
+    transition: all 0.2s ease-out;
+}
+
+.view-saved-button {
+    justify-content: center;
+    align-items: center;
+    margin-left: 680px;
+}

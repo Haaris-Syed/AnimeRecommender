@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/FilterModal.css";
+import "../assets/css/Link.css";
 
 function Home() {
   const [animeList, setAnimeList] = useState([]);
@@ -107,12 +108,12 @@ function Home() {
         setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
         setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
       }
-    } 
-		// if the list is empty, just update both lists
-		else{
-			setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
+    }
+    // if the list is empty, just update both lists
+    else {
+      setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
       setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
-		}
+    }
     console.log(animeTitle);
 
     localStorage.setItem("savedAnimeList", JSON.stringify(savedAnime));
@@ -208,12 +209,19 @@ function Home() {
             />
           ))}
         </div>
-        <Link
-          to="/saved"
-          state={JSON.parse(localStorage.getItem("savedAnimeList"))}
-        >
-          View Saved
-        </Link>
+        {savedAnime.length !== 0 ? (
+					<div className="view-saved-button">
+          <Link
+            className="saved-anime"
+            to="/saved"
+            state={JSON.parse(localStorage.getItem("savedAnimeList"))}
+          >
+            View Saved
+          </Link>
+					</div>
+        ) : (
+          <div></div>
+        )}
       </main>
     </div>
   );
