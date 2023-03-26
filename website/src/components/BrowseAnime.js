@@ -44,6 +44,7 @@ function BrowseAnime() {
             handleSearch={handleSearch}
             setSearch={setSearch}
           />
+          </div>
           <div className="anime-list">
             {browseAnime.map((anime) => (
               <AnimeCard
@@ -54,7 +55,6 @@ function BrowseAnime() {
                 key={anime.mal_id}
               />
             ))}
-          </div>
         </div>
       </main>
     </div>
