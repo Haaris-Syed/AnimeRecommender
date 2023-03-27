@@ -97,8 +97,6 @@ def get_normalised_df():
 
     normalised_anime_df = anime_df.copy()
 
-    # feature_weights = set_feature_weights()
-
     normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * feature_weights['members_norm']
     normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * feature_weights['rating_norm']
     normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * feature_weights['popularity_norm']
@@ -166,6 +164,9 @@ def get_website_anime_df():
 
     return website_anime_df
 
+@app.route('/get_anime_titles')
+def get_anime_titles_for_searchbar():
+    return website_anime_df['name'].tolist()
 # ============ Declaring global values/dataframes ============
 
 overall_pivot = None
@@ -333,16 +334,6 @@ def collaborative_filtering_recommendations(anime, combined_category_ratings_piv
 
 def get_cf_recs(anime_title):
     global combined_category_ratings_pivot
-
-    # overall_pivot, story_pivot, animation_pivot, sound_pivot, character_pivot, enjoyment_pivot = create_pivots_for_rating_categories()
-    
-    # overall_similarities_df, story_similarities_df, animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
-    # animation_pivot, sound_pivot, character_pivot, enjoyment_pivot)
-
-    # combined_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-    # animation_similarities_df, sound_similarities_df, character_similarities_df, enjoyment_similarities_df)
-
-    # combined_category_ratings_pivot = combined_ratings_pivot
 
     return collaborative_filtering_recommendations(anime_title, combined_category_ratings_pivot)
 

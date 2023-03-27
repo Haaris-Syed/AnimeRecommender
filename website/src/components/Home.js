@@ -33,7 +33,7 @@ function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    fetchAnime(search);
+    fetchAnime(search);//toLowerCase()
   };
 
   const fetchAnime = async (query) => {
@@ -144,15 +144,17 @@ function Home() {
   };
 
   //storage list is one update behind
-  console.log(savedAnime);
-  console.log(
-    "STORAGE LIST: ",
-    JSON.parse(localStorage.getItem("savedAnimeList"))
-  );
-  console.log(
-    "STORAGE TITLE LIST: ",
-    JSON.parse(localStorage.getItem("savedAnimeTitles"))
-  );
+  // console.log(savedAnime);
+  // console.log(
+  //   "STORAGE LIST: ",
+  //   JSON.parse(localStorage.getItem("savedAnimeList"))
+  // );
+  // console.log(
+  //   "STORAGE TITLE LIST: ",
+  //   JSON.parse(localStorage.getItem("savedAnimeTitles"))
+  // );
+
+  console.log("SEARCH: ", search)
 
   return (
     <div className="content-wrap">

@@ -32,8 +32,9 @@ function BrowseAnime() {
 
   useEffect(() => {
     getTopAnime();
+    
   }, []);
-
+  
   return (
     <div className="content-wrap">
       <TopAnimeBar topAnime={topAnime} />
