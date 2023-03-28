@@ -24,7 +24,6 @@ function Searchbar(props) {
       setFilteredData([]);
     } else {
       setFilteredData(filteredTitles);
-      
     }
     props.setSearch(searchTerm);
   };
@@ -32,7 +31,7 @@ function Searchbar(props) {
   const autoComplete = (search) => {
     props.setSearch(search)
   }
-   
+
   return (
     <div>
       <form className="search-box" onSubmit={props.handleSearch}>

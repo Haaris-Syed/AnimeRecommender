@@ -9,6 +9,7 @@ import * as BSIcons from "react-icons/bs";
 import * as AiIcons from "react-icons/ai";
 import "../assets/css/FilterModal.css";
 import "../assets/css/Link.css";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function Home() {
   const [animeList, setAnimeList] = useState([]);
@@ -17,6 +18,9 @@ function Home() {
   const [animeIDs, setAnimeIDs] = useState([]);
   const [animeImages, setAnimeImages] = useState([]);
   const [animeLinks, setAnimeLinks] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  let [color, setColor] = useState("#36d7b7");
 
   const getTopAnime = async () => {
     const temp = await fetch(`https://api.jikan.moe/v4/top/anime`).then((res) =>
@@ -37,6 +41,7 @@ function Home() {
   };
 
   const fetchAnime = async (query) => {
+    setLoading(true);
     const temp = await fetch(`/get_hybrid_recs?query=${query}`).then((res) =>
       res.json()
     );
@@ -45,6 +50,8 @@ function Home() {
     getAnimeIDs(temp);
     getAnimeImages(temp);
     getAnimeLinks(temp);
+
+    setLoading(false)
   };
 
   const getAnimeIDs = async (recommendationList) => {
@@ -151,6 +158,7 @@ function Home() {
             search={search}
             handleSearch={handleSearch}
             setSearch={setSearch}
+            loading={loading}
           />
           <button className="filter-button">
             <BSIcons.BsSliders onClick={toggleModal} />
@@ -184,6 +192,20 @@ function Home() {
           )}
           {showModal && <div className="overlay"></div>}
         </div>
+        <div className="loading-icon">
+          {loading ? (
+            <ClipLoader
+              color={color}
+              loading={loading}
+              cssOverride={{filter: 'none'}}
+              size={30}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          ) : (
+            <div></div>
+          )}
+        </div>
         <div className="anime-list">
           {animeList.map((anime, index) => (
             <AnimeCard
@@ -199,15 +221,15 @@ function Home() {
           ))}
         </div>
         {savedAnime.length !== 0 ? (
-					<div className="view-saved-button">
-          <Link
-            className="saved-anime"
-            to="/saved"
-            state={JSON.parse(localStorage.getItem("savedAnimeList"))}
-          >
-            View Saved
-          </Link>
-					</div>
+          <div className="view-saved-button">
+            <Link
+              className="saved-anime"
+              to="/saved"
+              state={JSON.parse(localStorage.getItem("savedAnimeList"))}
+            >
+              View Saved
+            </Link>
+          </div>
         ) : (
           <div></div>
         )}
