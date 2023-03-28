@@ -7,7 +7,8 @@ function FilterModalContent() {
 
   const [loading, setLoading] = useState(false);
   let [color, setColor] = useState("#36d7b7");
-// ========== COLLABORATIVE FILTERING VALUES ==========
+  
+  // ========== COLLABORATIVE FILTERING VALUES ==========
   const [collaborativeValue, setCollaborativeValue] = useState(() => {
     const storedValue = localStorage.getItem("collaborativeValue");
     return storedValue !== null ? JSON.parse(storedValue) : 0.6;

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import validate from "./validateInfo";
-import useForm from "./useForm";
 import httpClient from "./httpClient";
 import "../assets/css/Form.css";
 
@@ -177,7 +176,7 @@ const Signup = () => {
         Sign up
       </button>
       <span className='form-input-login'>
-        Already have an account? Login <a href='#'>here</a>
+        Already have an account? Login <a href='/login'>here</a>
       </span>
     </form>
   </div>

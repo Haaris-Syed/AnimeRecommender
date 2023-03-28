@@ -1,15 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import validate from "./validateInfo";
 import useForm from "./useForm";
 import httpClient from "./httpClient";
 import "../assets/css/Login.css";
 
 function Login({ submitForm }) {
-  const { handleChange, handleSubmit, values, errors } = useForm(
-    submitForm,
-    validate
-  );
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -21,7 +16,6 @@ function Login({ submitForm }) {
       });
 
       window.location.href = "/";
-      
     } catch (error) {
       if (error.response.status === 401) {
         alert("Invalid credentials");
@@ -32,7 +26,7 @@ function Login({ submitForm }) {
   return (
     <div className="form-container">
       <div className="form-content">
-        <form onSubmit={handleSubmit} className="form" noValidate>
+        <form className="form">
           <h1>Please enter your login details below.</h1>
           <div className="form-inputs">
             <label className="form-label">Email</label>
@@ -44,7 +38,6 @@ function Login({ submitForm }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            {errors.email && <p>{errors.email}</p>}
           </div>
           <div className="form-inputs">
             <label className="form-label">Password</label>
@@ -64,6 +57,9 @@ function Login({ submitForm }) {
           >
             Log In
           </button>
+          <span className="form-input-login">
+            Not already registered? Sign up <a href="/signup">here</a>
+          </span>
         </form>
       </div>
     </div>

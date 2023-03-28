@@ -5,6 +5,7 @@ import { Button } from "./Button";
 import * as GiIcons from "react-icons/gi";
 import "../assets/css/Navbar.css";
 import httpClient from "./httpClient";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -37,6 +38,13 @@ function Navbar() {
         <GiIcons.GiBrain className="gi-brain" />
       </h1>
       <ul className="nav-menu">
+        {/* <Link
+          className="saved-anime"
+          to="/saved"
+          state={JSON.parse(localStorage.getItem("savedAnimeList"))}
+        >
+          View Saved
+        </Link> */}
         {user != null ? (
           <>
             {LoggedInMenuItems.map((item, index) => {

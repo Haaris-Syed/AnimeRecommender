@@ -14,7 +14,7 @@ function SavedAnime() {
       <div className="content-wrap">
         <main>
         <div className="anime-list">
-          {state.length !== 0 ? (
+          {state && state.length !== 0 ? (
             state.map((anime, index) => (
               <AnimeCard
                 anime={anime[0]}
