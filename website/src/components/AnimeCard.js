@@ -1,23 +1,26 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import * as FiIcons from "react-icons/fi";
 import * as AiIcons from "react-icons/ai";
 
 function AnimeCard(props) {
-  const {anime, id, image, link, onAddAnime, onRemoveAnime} = props
-
-  // id is null for some reason
+  const {
+    anime,
+    id,
+    image,
+    link,
+    onAddAnime,
+    onRemoveAnime,
+    savedAnimeTitles,
+  } = props;
 
   const addAnimeToSaved = () => {
-    onAddAnime(anime)
-  }  
+    onAddAnime(anime);
+  };
 
   const removeAnimeFromSaved = () => {
-    onRemoveAnime(anime)
-  }  
+    onRemoveAnime(anime);
+  };
 
-  // console.log(savedAnime);
-  // console.log(savedAnime.length);
- 
   return (
     <article className="anime-card">
       <a href={props.animeLink} target="_blank" rel="noreferrer">
@@ -27,21 +30,21 @@ function AnimeCard(props) {
       </a>
       <h3>
         {props.anime}
-        {window.location.pathname === '/' ? (
+        {window.location.pathname === "/" ? (
           <div>
-        <button>
-          <FiIcons.FiPlusCircle onClick={addAnimeToSaved} />
-        </button>
-        <button>
-          <AiIcons.AiOutlineMinusCircle onClick={removeAnimeFromSaved} />
-        </button>
-        </div>
+            {!savedAnimeTitles.includes(props.anime) ? (
+              <button>
+                <FiIcons.FiPlusCircle onClick={addAnimeToSaved} />
+              </button>
+            ) : (
+              <button>
+                <AiIcons.AiOutlineMinusCircle onClick={removeAnimeFromSaved} />
+              </button>
+            )}
+          </div>
         ) : (
-          <div>
-          {/* <button>
-          <AiIcons.AiOutlineMinusCircle onClick={removeAnimeFromSaved} />
-        </button> */}
-        </div>
+          <>
+          </>
         )}
       </h3>
     </article>

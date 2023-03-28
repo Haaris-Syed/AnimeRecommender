@@ -10,7 +10,7 @@ function Navbar() {
   const [user, setUser] = useState(null);
 
   const logoutUser = async () => {
-    await httpClient.get("http://127.0.0.1:5000/logout");
+    await httpClient.post("http://127.0.0.1:5000/logout");
 
     window.location.href = "/";
   };
@@ -18,21 +18,16 @@ function Navbar() {
   useEffect(() => {
     (async () => {
       try {
-        console.log("USER: ", user);
-  const resp = await httpClient.get(
-    "http://127.0.0.1:5000/get_current_user"
-  );
-
-  //       // console.log("Checking: ", resp.data.id)
+        const resp = await httpClient.get(
+          "http://127.0.0.1:5000/get_current_user"
+        );
         setUser(resp.data.id);
-        // setUser('Logged In')
       } catch (error) {
         console.log("Not Authenticated");
       }
     })();
   }, []);
 
-  console.log("USER AFTER: ", user);
   return (
     <nav className="NavbarItems">
       <h1 className="navbar-logo">
@@ -53,9 +48,9 @@ function Navbar() {
                 </li>
               );
             })}
-            <li className="logout">
-              <Button onClick={logoutUser}>Log Out</Button>
-            </li>
+            <Button onClick={logoutUser}>
+              <p className="navbar-logout">Log Out</p>
+            </Button>
           </>
         ) : (
           <>

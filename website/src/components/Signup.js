@@ -14,7 +14,6 @@ const Signup = ({ submitForm }) => {
   const [password, setPassword] = useState("");
 
   const registerUser = async () => {
-    console.log(email, password);
 
     try {
       const resp = await httpClient.post("http://127.0.0.1:5000/register", 
@@ -23,15 +22,7 @@ const Signup = ({ submitForm }) => {
         password,
       });
 
-      console.log("ID + EMAIL: ", resp.data.id, resp.data.email)
-
-      // console.log("EMAIL: ", resp.data.email, "PASSWORD: ",resp.data.password, 
-      // "NEW USER EMAIL: ",resp.data.userE, "NEW USER PASSWORD: ",resp.data.userP,
-      // "SESSION: ", resp.data.session)
-
-      // console.log("JSON: ", resp[0], resp[1])
-
-      // window.location.href = "/";
+      window.location.href = "/";
 
     } catch (error) {
       if (error.response.status === 401) {

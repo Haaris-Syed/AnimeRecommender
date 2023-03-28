@@ -33,7 +33,7 @@ function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    fetchAnime(search);//toLowerCase()
+    fetchAnime(search);
   };
 
   const fetchAnime = async (query) => {
@@ -114,7 +114,7 @@ function Home() {
       setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
       setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
     }
-    console.log(animeTitle);
+    // console.log(animeTitle);
 
     localStorage.setItem("savedAnimeList", JSON.stringify(savedAnime));
     localStorage.setItem("savedAnimeTitles", JSON.stringify(savedAnimeTitles));
@@ -124,7 +124,6 @@ function Home() {
     // checks that the list is not empty before and if the title is present
     // in the list as these are both conditions needed to remove the anime
     if (savedAnimeTitles && savedAnimeTitles.includes(animeTitle)) {
-      console.log(animeTitle);
       const updatedAnimeSaved = savedAnime.filter(
         (anime) => anime[0] !== animeTitle
       );
@@ -142,19 +141,6 @@ function Home() {
       );
     }
   };
-
-  //storage list is one update behind
-  // console.log(savedAnime);
-  // console.log(
-  //   "STORAGE LIST: ",
-  //   JSON.parse(localStorage.getItem("savedAnimeList"))
-  // );
-  // console.log(
-  //   "STORAGE TITLE LIST: ",
-  //   JSON.parse(localStorage.getItem("savedAnimeTitles"))
-  // );
-
-  console.log("SEARCH: ", search)
 
   return (
     <div className="content-wrap">
@@ -207,6 +193,7 @@ function Home() {
               animeLink={animeLinks[index]}
               onAddAnime={handleAddAnime}
               onRemoveAnime={handleRemoveAnime}
+              savedAnimeTitles={savedAnimeTitles}
               key={index}
             />
           ))}
@@ -230,4 +217,3 @@ function Home() {
 }
 
 export default Home;
-// savedAnime

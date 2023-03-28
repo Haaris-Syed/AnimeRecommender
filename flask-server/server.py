@@ -586,7 +586,6 @@ from config import ApplicationConfig
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_cors import CORS
-import json
 
 app.config.from_object(ApplicationConfig)
 
@@ -601,8 +600,7 @@ with app.app_context():
 @app.route("/get_current_user")
 def get_current_user():
     user_id = session.get("user_id")
-    # user_id = '8b1d51ae8b494ae883450fa72c6077c5'
-
+    
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
     
@@ -627,7 +625,6 @@ def register_user():
 
     hashed_password = bcrypt.generate_password_hash(password)
     new_user = User(email=email, password=hashed_password)
-    # new_user = User(email="testing@gmail.com", password="lmaolmaolmaolmaoHASHED")
     db.session.add(new_user)
     db.session.commit()
     
@@ -637,13 +634,6 @@ def register_user():
         "id": new_user.id,
         "email": new_user.email
     })
-    # return jsonify({
-    #     "email": email,
-    #     "password": password,
-    #     "userE": new_user.email,
-    #     "userP": json.dumps(new_user.password.decode('utf-8')),
-    #     "session": session["user_id"]
-    # })
 
 @app.route("/login", methods=["POST"])
 def login_user():
@@ -673,7 +663,7 @@ def logout_user():
     return "200"
 
 if __name__ == "__main__":
-    # load_data()
+    load_data()
     app.run(debug=True)
 
 

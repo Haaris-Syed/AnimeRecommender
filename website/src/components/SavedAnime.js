@@ -1,25 +1,11 @@
-import React, {useState} from "react";
+import React from "react";
 import { useLocation } from "react-router";
 import AnimeCard from "./AnimeCard";
 import "../assets/css/SavedAnime.css";
 
-function SavedAnime(animeList) {
+function SavedAnime() {
   const { state } = useLocation();
 
-  // const [updatedSavedList, setUpdatedSavedList] = useState([])
-
-  // const handleRemoveAnime = (animeTitle) => {
-  //   const updatedList = state.filter(anime => anime[0] !== animeTitle)
-
-  //   setUpdatedSavedList(updatedList)
-  // }
-
-  // localStorage.setItem('savedAnimeList', JSON.stringify(updatedSavedList))
-
-  const test = () => {
-    console.log(animeList);
-    console.log("STATE: ", state);
-  };
   return (
     <div className="saved">
       <h1 style={{'marginTop': '20px'}}>

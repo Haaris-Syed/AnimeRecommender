@@ -12,11 +12,18 @@
   justify-self: start;
   margin-left: 20px;
   cursor: pointer;
+  padding-right: 130px;
 }
 
 .gi-brain {
   margin-left: 0.5rem;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
+}
+
+.nav-links-title {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 0.5rem;
 }
 
 .nav-menu {
@@ -43,22 +50,27 @@
 }
 
 .logout {
+  padding: 8px 20px;
+  font-size: 18px;
+  border-radius: 4px;
   color: #fff;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  background-color: #3acbf7;
   text-decoration: none;
   padding: 0.5rem 1rem;
 }  
 
  .logout:hover {
-  background-color: #ffffff;
-  border-radius: 4px;
-  transition: all 0.2s ease-out;
+  padding: 8px 20px;
+  transition: all 0.3s ease-out;
+  background: #2291a5;
+  color: #6568F4;
+  transition: 250ms;
 }  
 
-.nav-links-title {
-  color: #fff;
-  text-decoration: none;
-  padding: 0.5rem 0.5rem;
-}
+
 
 .nav-link-signup {
   color: #fff;
@@ -66,66 +78,8 @@
   padding: 0.5rem 1rem;
 }
 
-.fa-bars {
+.navbar-logout {
   color: #fff;
-}
-
-.nav-links-mobile {
-  display: none;
-}
-
-.menu-icon {
-  display: none;
-}
-
-@media screen and (max-width: 960px) {
-  .NavbarItems {
-    position: relative;
-  }
-
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 500px;
-  position: absolute;
-  top: 80px;
-  left: -100%;
-  opacity: 1;
-  transition: all 0.5s ease;
-}
-
-.nav-menu.active {
-  background: #6668f4;
-  left: 0;
-  opacity: 1;
-  transition: all 0.5 ease;
-  z-index: 1;
-}
-
-.navbar-logo {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(25%, 50%);
-}
-
-.menu-icon {
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(-100%, 60%);
-  font-size: 1.8rem;  
-  cursor: pointer;
-}
-
-.fa-times {
-  color:#fff;
-  font-size: 2rem;
-}
-
-.btn--primary {
-  display: none;
-}
+  text-decoration: none;
+  padding: 0.1rem 0.5rem;
 }

@@ -1,14 +1,13 @@
 export const LoggedInMenuItems = [
-    {
-      title: "Saved",
-      url: "/saved",
-      cName: "nav-links",
-    },
-    
-    // {
-    //   title: "Log Out",
-    //   url: "/logout",
-      // cName: "nav-links",
-    // },
+  {
+    title: "Browse",
+    url: "/browse",
+    cName: "nav-links",
+  },
+  {
+    title: "Information",
+    url: "/information",
+    cName: "nav-links",
+  },
   ];
   
