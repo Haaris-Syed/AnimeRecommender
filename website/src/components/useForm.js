@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 
 const useForm = (callback, validate) => {
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+
   const [values, setValues] = useState({
     username: '',
     email: '',
@@ -16,6 +19,8 @@ const useForm = (callback, validate) => {
       ...values,
       [name]: value
     });
+    // setEmail(values.email)
+    // setPassword(values.password)
   };
 
   const handleSubmit = e => {
