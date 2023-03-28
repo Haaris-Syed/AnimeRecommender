@@ -15,25 +15,22 @@ function Navbar() {
     window.location.href = "/";
   };
 
-  // just cheat and set the user to not null
-  // delete all that extra form input checking and just keep css
+  useEffect(() => {
+    (async () => {
+      try {
+        console.log("USER: ", user);
+  const resp = await httpClient.get(
+    "http://127.0.0.1:5000/get_current_user"
+  );
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       console.log("USER: ", user);
-  // const resp = await httpClient.get(
-  //   "http://127.0.0.1:5000/get_current_user"
-  // );
-
-  // //       // console.log("Checking: ", resp.data.id)
-  // //       // setUser(resp.data.id);
-  //       setUser('Logged In')
-  //     } catch (error) {
-  //       console.log("Not Authenticated");
-  //     }
-  //   })();
-  // }, []);
+  //       // console.log("Checking: ", resp.data.id)
+        setUser(resp.data.id);
+        // setUser('Logged In')
+      } catch (error) {
+        console.log("Not Authenticated");
+      }
+    })();
+  }, []);
 
   console.log("USER AFTER: ", user);
   return (

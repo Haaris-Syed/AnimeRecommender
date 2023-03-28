@@ -112,7 +112,7 @@ def get_normalised_df():
 
     return normalised_anime_df
 
-def set_feature_weights(genre_weight=0.4, members_weight=0.1, rating_weight=0.3, popularity_weight=0.1, episodes_weight=0.1):#pass in values given by the user on the website
+def set_feature_weights(genre_weight=0.3, members_weight=0.1, rating_weight=0.4, popularity_weight=0.1, episodes_weight=0.1):#pass in values given by the user on the website
     global feature_weights
 
     total_weight = genre_weight + members_weight + rating_weight + popularity_weight + episodes_weight
@@ -586,6 +586,7 @@ from config import ApplicationConfig
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_cors import CORS
+import json
 
 app.config.from_object(ApplicationConfig)
 
@@ -626,6 +627,7 @@ def register_user():
 
     hashed_password = bcrypt.generate_password_hash(password)
     new_user = User(email=email, password=hashed_password)
+    # new_user = User(email="testing@gmail.com", password="lmaolmaolmaolmaoHASHED")
     db.session.add(new_user)
     db.session.commit()
     
@@ -635,6 +637,13 @@ def register_user():
         "id": new_user.id,
         "email": new_user.email
     })
+    # return jsonify({
+    #     "email": email,
+    #     "password": password,
+    #     "userE": new_user.email,
+    #     "userP": json.dumps(new_user.password.decode('utf-8')),
+    #     "session": session["user_id"]
+    # })
 
 @app.route("/login", methods=["POST"])
 def login_user():
@@ -664,7 +673,7 @@ def logout_user():
     return "200"
 
 if __name__ == "__main__":
-    load_data()
+    # load_data()
     app.run(debug=True)
 
 

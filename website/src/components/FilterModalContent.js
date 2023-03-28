@@ -102,7 +102,7 @@ function FilterModalContent() {
 
   const [genreValue, setGenreValue] = useState(() => {
     const storedValue = localStorage.getItem("genreValue");
-    return storedValue !== null ? JSON.parse(storedValue) : 0.4;
+    return storedValue !== null ? JSON.parse(storedValue) : 0.3;
   });
 
   useEffect(() => {
@@ -128,7 +128,7 @@ function FilterModalContent() {
 
   const [ratingValue, setRatingValue] = useState(() => {
     const storedValue = localStorage.getItem("ratingValue");
-    return storedValue !== null ? JSON.parse(storedValue) : 0.3;
+    return storedValue !== null ? JSON.parse(storedValue) : 0.4;
   });
 
   useEffect(() => {
