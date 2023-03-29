@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as FiIcons from "react-icons/fi";
 import * as AiIcons from "react-icons/ai";
+import httpClient from "./httpClient";
 
 function AnimeCard(props) {
   const {
@@ -21,6 +22,22 @@ function AnimeCard(props) {
     onRemoveAnime(anime);
   };
 
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await httpClient.get(
+          "http://127.0.0.1:5000/get_current_user"
+        );
+
+        setUsername(resp.data.username);
+      } catch (error) {
+        console.log("Not Authenticated");
+      }
+    })();
+  }, []);
+
   return (
     <article className="anime-card">
       <a href={props.animeLink} target="_blank" rel="noreferrer">
@@ -32,19 +49,21 @@ function AnimeCard(props) {
         {props.anime}
         {window.location.pathname === "/" ? (
           <div>
-            {!savedAnimeTitles.includes(props.anime) ? (
-              <button>
-                <FiIcons.FiPlusCircle onClick={addAnimeToSaved} />
-              </button>
-            ) : (
-              <button>
-                <AiIcons.AiOutlineMinusCircle onClick={removeAnimeFromSaved} />
-              </button>
-            )}
+            {username &&
+              (!savedAnimeTitles.includes(props.anime) ? (
+                <button>
+                  <FiIcons.FiPlusCircle onClick={addAnimeToSaved} />
+                </button>
+              ) : (
+                <button>
+                  <AiIcons.AiOutlineMinusCircle
+                    onClick={removeAnimeFromSaved}
+                  />
+                </button>
+              ))}
           </div>
         ) : (
-          <>
-          </>
+          <></>
         )}
       </h3>
     </article>

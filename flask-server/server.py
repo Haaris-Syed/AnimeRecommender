@@ -107,7 +107,6 @@ def get_normalised_df():
     # # get hot encoding of genres and merge with our main df
     genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
 
-    # normalised_anime_df.drop('genre', axis=1, inplace=True)
     normalised_anime_df = pd.concat([normalised_anime_df, genres_df], axis=1)
 
     return normalised_anime_df
@@ -312,7 +311,6 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
 # only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
 animation_similarities_df, character_similarities_df):
-    # rating_weights = set_rating_weights()
     global rating_weights
 
     combined_category_ratings_pivot = ((overall_similarities_df * rating_weights['overall_weight']) + (story_similarities_df * rating_weights['story_weight']) + (animation_similarities_df * rating_weights['animation_weight']) + (character_similarities_df * rating_weights['character_weight']))
@@ -341,10 +339,7 @@ def get_cf_recs(anime_title):
 
 def combined_recommendations(anime_name, num_recommendations=50):
     global combined_category_ratings_pivot, content_weight, collaborative_weight
-    # , content_weight=0.4, collaborative_weight=0.6
-    # if anime_name not in combined_category_ratings_pivot.index:
-    #     return []
-
+    
     content_based = get_cb_recs(anime_name)
     collaborative_filtering = get_cf_recs(anime_name)
 
@@ -370,21 +365,6 @@ def combined_recommendations(anime_name, num_recommendations=50):
     
     weighted_scores = scores[anime_name].sort_values(ascending=False)
     return weighted_scores.head(num_recommendations).index.tolist()
-
-# @app.route('/get_ids_for_recommendations')
-# def get_ids_for_recommendations():
-#     global anime_df
-
-#     recommendations = request.args.get('query')
-#     recommendations = recommendations.replace('%20', ' ')
-#     recommendations = recommendations.split(',')
-    
-#     anime_ids = []
-
-#     for rec in recommendations:
-#         anime_ids.append(int(anime_df.loc[anime_df['name'] == rec]['anime_id'].values[0]))
-
-#     return anime_ids
 
 @app.route('/get_ids_for_recommendations')
 def get_ids_for_recommendations():
@@ -439,24 +419,6 @@ def get_links_for_recommendations():
         mal_link.append(str(anime_rec['link'].values[0]))
 
     return mal_link
-
-@app.route('/get_synopsis_for_recommendations')
-def get_synopsis_for_recommendations():
-    global website_anime_df
-
-    recommendations = request.args.get('query')
-    recommendations = recommendations.replace('%20', ' ')
-    recommendations = recommendations.split(',')
-
-    website_recommendations_df = website_anime_df[website_anime_df['name'].isin(recommendations)] 
-
-    synopsis = []
-
-    for rec in recommendations:
-        anime_rec = website_recommendations_df.loc[website_recommendations_df['name'] == rec]
-        synopsis.append(str(anime_rec['synopsis'].values[0]))
-
-    return synopsis
 
 @app.route("/get_hybrid_recs")
 def get_hybrid_recs():
@@ -608,7 +570,8 @@ def get_current_user():
     
     return jsonify({
         "id": user.id,
-        "email": user.email
+        "email": user.email,
+        "username": user.username
     }) 
 
 @app.route('/register', methods=['POST'])
@@ -617,6 +580,7 @@ def register_user():
 
     email = data.get('email')
     password = data.get('password')
+    username = data.get('username')
 
     user_exists = User.query.filter_by(email=email).first() is not None
 
@@ -624,7 +588,7 @@ def register_user():
         return jsonify({"error": "User already exists"}), 409
 
     hashed_password = bcrypt.generate_password_hash(password)
-    new_user = User(email=email, password=hashed_password)
+    new_user = User(email=email, password=hashed_password, username=username)
     db.session.add(new_user)
     db.session.commit()
     
@@ -632,7 +596,8 @@ def register_user():
 
     return jsonify({
         "id": new_user.id,
-        "email": new_user.email
+        "email": new_user.email,
+        "username": new_user.username
     })
 
 @app.route("/login", methods=["POST"])

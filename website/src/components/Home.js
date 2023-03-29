@@ -10,6 +10,7 @@ import * as AiIcons from "react-icons/ai";
 import "../assets/css/FilterModal.css";
 import "../assets/css/Link.css";
 import ClipLoader from "react-spinners/ClipLoader";
+import httpClient from "./httpClient";
 
 function Home() {
   const [animeList, setAnimeList] = useState([]);
@@ -51,7 +52,7 @@ function Home() {
     getAnimeImages(temp);
     getAnimeLinks(temp);
 
-    setLoading(false)
+    setLoading(false);
   };
 
   const getAnimeIDs = async (recommendationList) => {
@@ -121,7 +122,6 @@ function Home() {
       setSavedAnime([...savedAnime, [anime, animeLink, animeImage, animeID]]);
       setSavedAnimeTitles([...savedAnimeTitles, anime]); //savedAnime?
     }
-    // console.log(animeTitle);
 
     localStorage.setItem("savedAnimeList", JSON.stringify(savedAnime));
     localStorage.setItem("savedAnimeTitles", JSON.stringify(savedAnimeTitles));
@@ -148,6 +148,23 @@ function Home() {
       );
     }
   };
+
+  const [username, setUsername] = useState('')
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await httpClient.get(
+          "http://127.0.0.1:5000/get_current_user"
+        );
+        
+        setUsername(resp.data.username);
+
+      } catch (error) {
+        console.log("Not Authenticated");
+      }
+    })();
+  }, []);
 
   return (
     <div className="content-wrap">
@@ -197,7 +214,7 @@ function Home() {
             <ClipLoader
               color={color}
               loading={loading}
-              cssOverride={{filter: 'none'}}
+              cssOverride={{ filter: "none" }}
               size={30}
               aria-label="Loading Spinner"
               data-testid="loader"
@@ -220,19 +237,18 @@ function Home() {
             />
           ))}
         </div>
-        {savedAnime.length !== 0 ? (
           <div className="view-saved-button">
-            <Link
-              className="saved-anime"
-              to="/saved"
-              state={JSON.parse(localStorage.getItem("savedAnimeList"))}
-            >
-              View Saved
-            </Link>
+            {username && (
+                <Link
+                className="saved-anime"
+                to="/saved"
+                state={JSON.parse(localStorage.getItem("savedAnimeList"))}
+              >
+                View Saved
+              </Link>
+              
+            )} 
           </div>
-        ) : (
-          <div></div>
-        )}
       </main>
     </div>
   );

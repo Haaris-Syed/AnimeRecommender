@@ -1,5 +1,12 @@
 .saved {
   text-align: center;
+  color: rgb(0, 0, 0);
+}
+
+.welcome {
+    padding-top: 10px;
+    text-align: center;
+    color: #3acbf7;
 }
 
 .content-wrap .anime-list {
@@ -56,3 +63,5 @@
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.25);
     transform: scale(1.05);
   }/*# sourceMappingURL=main.css.map */
+
+  

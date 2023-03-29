@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { MenuItems } from "./MenuItems";
 import { LoggedInMenuItems } from "./LoggedInMenuItems";
 import { Button } from "./Button";
-import * as GiIcons from "react-icons/gi";
-import "../assets/css/Navbar.css";
-import httpClient from "./httpClient";
 import { Link } from "react-router-dom";
+import * as GiIcons from "react-icons/gi";
+import httpClient from "./httpClient";
+import "../assets/css/Navbar.css";
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -22,13 +22,16 @@ function Navbar() {
         const resp = await httpClient.get(
           "http://127.0.0.1:5000/get_current_user"
         );
+        
         setUser(resp.data.id);
+
       } catch (error) {
         console.log("Not Authenticated");
       }
     })();
   }, []);
 
+  
   return (
     <nav className="NavbarItems">
       <h1 className="navbar-logo">

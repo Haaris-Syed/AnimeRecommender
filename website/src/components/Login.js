@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import validate from "./validateInfo";
-import useForm from "./useForm";
+import React, { useState } from "react";
 import httpClient from "./httpClient";
 import "../assets/css/Login.css";
 

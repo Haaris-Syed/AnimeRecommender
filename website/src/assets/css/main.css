@@ -57,6 +57,7 @@ header h1 strong {
   flex: 1 1 0%;
   padding: 0px 16px;
 }
+
 .content-wrap main .home-head {
   display: flex;
   justify-content: space-evenly;
