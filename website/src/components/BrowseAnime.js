@@ -39,6 +39,7 @@ function BrowseAnime() {
     <div className="content-wrap">
       <TopAnimeBar topAnime={topAnime} />
       <main>
+        <h2 className="title">Search for your favourite anime!</h2>
         <div className="home-head-browse">
           <Searchbar
             search={search}

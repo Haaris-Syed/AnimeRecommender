@@ -170,6 +170,9 @@ function Home() {
     <div className="content-wrap">
       <TopAnimeBar topAnime={topAnime} />
       <main>
+        <h2 className="title">
+          <p className="title-sub">Search a title and get recommendations!</p>
+        </h2>
         <div className="home-head">
           <Searchbar
             search={search}

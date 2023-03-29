@@ -58,6 +58,12 @@ header h1 strong {
   padding: 0px 16px;
 }
 
+.content-wrap main .title {
+  text-align: center;
+  padding-bottom: 30px;
+  color: #3acbf7;
+}
+
 .content-wrap main .home-head {
   display: flex;
   justify-content: space-evenly;
