@@ -97,10 +97,27 @@ def get_normalised_df():
 
     normalised_anime_df = anime_df.copy()
 
-    normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * feature_weights['members_norm']
-    normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * feature_weights['rating_norm']
-    normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * feature_weights['popularity_norm']
-    normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * feature_weights['episodes_norm']
+    # normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * feature_weights['members_norm']
+    # normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * feature_weights['rating_norm']
+    # normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * feature_weights['popularity_norm']
+    # normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * feature_weights['episodes_norm']
+
+    members_min_val = normalised_anime_df['members'].min()
+    members_max_val = normalised_anime_df['members'].max()
+
+    ratings_min_val = normalised_anime_df['rating'].min()
+    ratings_max_val = normalised_anime_df['rating'].max()
+
+    popularity_min_val = normalised_anime_df['popularity'].min()
+    popularity_max_val = normalised_anime_df['popularity'].max()
+
+    episodes_min_val = normalised_anime_df['episodes'].min()
+    episodes_max_val = normalised_anime_df['episodes'].max()
+
+    normalised_anime_df['members_norm'] = (normalised_anime_df['members'] - members_min_val) / (members_max_val - members_min_val) * feature_weights['members_norm']
+    normalised_anime_df['avg_rating_norm'] = (normalised_anime_df['rating'] - ratings_min_val) / (ratings_max_val - ratings_min_val) * feature_weights['rating_norm']
+    normalised_anime_df['popularity_norm'] = (normalised_anime_df['popularity'] - popularity_min_val) / (popularity_max_val - popularity_min_val) * feature_weights['popularity_norm']
+    normalised_anime_df['episodes_norm'] = (normalised_anime_df['episodes'] - episodes_min_val) / (episodes_max_val - episodes_min_val) * feature_weights['episodes_norm']
     
     normalised_anime_df.drop(['members', 'rating', 'popularity', 'episodes'], axis=1, inplace=True)
     
