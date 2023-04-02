@@ -7,7 +7,6 @@ import sklearn as sk
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.metrics import mean_absolute_error
 from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 import re
@@ -15,6 +14,23 @@ import string
 import itertools
 
 app = Flask(__name__)
+
+# ============ Declaring global values/dataframes ============
+
+overall_pivot = None
+story_pivot = None
+animation_pivot = None
+character_pivot = None
+
+overall_similarities_df = None
+story_similarities_df = None
+animation_similarities_df = None
+character_similarities_df = None
+
+combined_category_ratings_pivot = None
+
+content_weight = 0.4
+collaborative_weight = 0.6
 
 # ============ Generic Helper Functions ============
 def text_cleaning(text):
@@ -99,11 +115,6 @@ def get_normalised_df():
 
     normalised_anime_df = anime_df.copy()
 
-    # normalised_anime_df['members_norm'] = normalised_anime_df['members'] / normalised_anime_df['members'].max() * feature_weights['members_norm']
-    # normalised_anime_df['avg_rating_norm'] = normalised_anime_df['rating'] / normalised_anime_df['rating'].max() * feature_weights['rating_norm']
-    # normalised_anime_df['popularity_norm'] = normalised_anime_df['popularity'] / normalised_anime_df['popularity'].max() * feature_weights['popularity_norm']
-    # normalised_anime_df['episodes_norm'] = normalised_anime_df['episodes'] / normalised_anime_df['episodes'].max() * feature_weights['episodes_norm']
-
     members_min_val = normalised_anime_df['members'].min()
     members_max_val = normalised_anime_df['members'].max()
 
@@ -145,65 +156,6 @@ def set_feature_weights(genre_weight=0.3, members_weight=0.1, rating_weight=0.4,
 
     return feature_weights
 
-# def calculate_cosine_similarity(normalised_anime_df, genres_df):
-#     features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
-
-#     cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
-
-#     return cosine_sim
-
-# this function will return an anime_df that will be a cleaned version but will consist of 
-# columns that were originally removed as part of developing the recommender system
-
-# the main line we are removing that differs this function from process_anime_df is:
-#  anime_df.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
-def get_website_anime_df():
-    website_anime_df = pd.read_csv("../datasets/animes.csv")
-
-    # reformat dataframe: removing NaN values and renaming columns, etc.
-    website_anime_df.rename(columns={'title': 'name'}, inplace=True)
-    
-    website_anime_df['name'] = website_anime_df['name'].apply(text_cleaning)
-
-    website_anime_df.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
-    website_anime_df.episodes.replace({'Unknown':np.nan},inplace=True)
-
-    # fill NaN values for images with a default MAL picture:
-    website_anime_df.fillna('https://image.myanimelist.net/ui/OK6W_koKDTOqqqLDbIoPAiC8a86sHufn_jOI-JGtoCQ', inplace=True)
-
-    website_anime_df.drop_duplicates(subset=['name'], inplace=True)
-    website_anime_df.dropna(inplace=True)
-    website_anime_df.reset_index(drop=True, inplace=True)
-
-    # replace the characters "[]'" with an empty space as the genre column is already of type string
-    website_anime_df['genre'] = website_anime_df['genre'].str.replace("'", "", regex=False)
-    website_anime_df['genre'] = website_anime_df['genre'].str.replace("[", "", regex=False)
-    website_anime_df['genre'] = website_anime_df['genre'].str.replace("]", "", regex=False)
-
-    return website_anime_df
-
-@app.route('/get_anime_titles')
-def get_anime_titles_for_searchbar():
-    return website_anime_df['name'].tolist()
-
-
-# ============ Declaring global values/dataframes ============
-
-overall_pivot = None
-story_pivot = None
-animation_pivot = None
-character_pivot = None
-
-overall_similarities_df = None
-story_similarities_df = None
-animation_similarities_df = None
-character_similarities_df = None
-
-combined_category_ratings_pivot = None
-
-content_weight = 0.4
-collaborative_weight = 0.6
-
 # used in both content-based and collaborative filtering
 # removes anime titles of repeating seasons to diversify the recommendations
 # E.g. Tokyo Ghoul S1, S2, S3... only have Tokyo Ghoul S1
@@ -238,6 +190,8 @@ def get_unique_recommendations(anime_titles):
 
     return unique_titles
 
+
+# ============ Content based filtering ============
 def get_anime_clusters():
     global normalised_anime_df, genres_df
 
@@ -255,44 +209,6 @@ def get_anime_clusters():
     anime_clusters_after_pca = kmeans.predict(pca_result)
 
     return anime_clusters_after_pca
-
-# ============ Content based filtering ============
-
-
-# def content_based_recommendations(title, cosine_sim, n_recommendations=100):
-#     global anime_df
-
-#     indices = pd.Series(anime_df.index, index=anime_df['name']).drop_duplicates()
-    
-#     # Get the index of the anime that matches the title
-#     index = indices[title]
-    
-#     # Get the pairwise cosine similarity scores for all anime with that index
-#     sim_scores = list(enumerate(cosine_sim[index]))
-
-#     # Sort the anime based on the similarity scores
-#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-
-#     # Get the top 100 most similar anime -> allows us to have more anime so that we are 
-#     # still able to recommend n_recommendations animes to the user after getting all the unique titles
-#     sim_scores = sim_scores[1:101]
-
-#     # Get the titles of the top 10 most similar anime
-#     anime_indices = [i[0] for i in sim_scores]
-    
-#     anime_titles = anime_df['name'].iloc[anime_indices].values.tolist()
-
-#     # convert to set for constant lookup time
-#     unique_titles = set(get_unique_recommendations(anime_titles))
-
-#     recommendations = [i for i in anime_titles if i in unique_titles]
-
-#     return recommendations[:n_recommendations+1]
-
-# def get_cb_recs(anime_title):
-#     global cb_cosine_similarity
-
-#     return content_based_recommendations(anime_title, cb_cosine_similarity)
 
 def content_based_recommendations(title, data, n_recommendations=100):
     # retrieve the index of the anime title from our main dataframe
@@ -317,7 +233,7 @@ def get_content_based_recommendations(anime_title):
 
 
 # ============ Collaborative filtering ============
-def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1): #pass in values given by the user on the website
+def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.1, character_weight=0.1):
     global rating_weights
 
     # normalise the weights so that they add up to 1
@@ -333,6 +249,7 @@ def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.
     }
 
     return rating_weights
+    
 def create_pivot_table(data, value):
     pivot_table = data.pivot_table(index='user_id', columns='name', values=value)
     pivot_table.fillna(0, inplace=True)
@@ -378,19 +295,19 @@ animation_similarities_df, character_similarities_df):
     return combined_category_ratings_pivot
 
 def collaborative_filtering_recommendations(anime, combined_category_ratings_pivot, n=100):
+    # retrieving the similarity scores of the specified anime title
     similarity_scores = combined_category_ratings_pivot[anime]
     similarity_scores = similarity_scores.sort_values(ascending=False)
 
     similar_anime = similarity_scores.iloc[1:n+1].index.tolist()
 
-    # remove reoccuring anime titles, e.g. Tokyo Ghoul season 1, Tokyo Ghoul season 2, etc.
     unique_titles = set(get_unique_recommendations(similar_anime))
 
     recommendations = [i for i in similar_anime if i in unique_titles]
 
     return recommendations
 
-def get_cf_recs(anime_title):
+def get_collaborative_filtering_recommendations(anime_title):
     global combined_category_ratings_pivot
 
     return collaborative_filtering_recommendations(anime_title, combined_category_ratings_pivot)
@@ -401,10 +318,10 @@ def combined_recommendations(anime_name, num_recommendations=50):
     global combined_category_ratings_pivot, content_weight, collaborative_weight
     
     content_based = get_content_based_recommendations(anime_name)
-    collaborative_filtering = get_cf_recs(anime_name)
+    collaborative_filtering = get_collaborative_filtering_recommendations(anime_name)
 
     # removing anime titles that may no longer exist within our dataframe as some were removed after the initial
-    # anime_df and ratings_df dataframes were merged together
+    # anime_df and user_ratings_df dataframes were merged together
     content_based_animes = []
 
     for i in content_based:
@@ -417,6 +334,7 @@ def combined_recommendations(anime_name, num_recommendations=50):
         if i in combined_category_ratings_pivot.index:
             collaborative_based_animes.append(i)
 
+    # retrieve the similarity scores for the anime titles in each recommendation list 
     content_based_scores = combined_category_ratings_pivot.loc[content_based_animes]
     collaborative_filtering_scores = combined_category_ratings_pivot.loc[collaborative_based_animes]
 
@@ -425,6 +343,43 @@ def combined_recommendations(anime_name, num_recommendations=50):
     
     weighted_scores = scores[anime_name].sort_values(ascending=False)
     return weighted_scores.head(num_recommendations).index.tolist()
+
+
+# ============ Information for website functionality / displaying recommendations ============
+
+# this function will return an anime_df that will be a cleaned version but will consist of 
+# columns that were originally removed as part of developing the recommender system
+
+# the main line we are removing that differs this function from process_anime_df is:
+#  anime_df.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
+def get_website_anime_df():
+    website_anime_df = pd.read_csv("../datasets/animes.csv")
+
+    # reformat dataframe: removing NaN values and renaming columns, etc.
+    website_anime_df.rename(columns={'title': 'name'}, inplace=True)
+    
+    website_anime_df['name'] = website_anime_df['name'].apply(text_cleaning)
+
+    website_anime_df.rename(columns={'uid': 'anime_id', 'score': 'rating'}, inplace=True)
+    website_anime_df.episodes.replace({'Unknown':np.nan},inplace=True)
+
+    # fill NaN values for images with a default MAL picture:
+    website_anime_df.fillna('https://image.myanimelist.net/ui/OK6W_koKDTOqqqLDbIoPAiC8a86sHufn_jOI-JGtoCQ', inplace=True)
+
+    website_anime_df.drop_duplicates(subset=['name'], inplace=True)
+    website_anime_df.dropna(inplace=True)
+    website_anime_df.reset_index(drop=True, inplace=True)
+
+    # replace the characters "[]'" with an empty space as the genre column is already of type string
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("'", "", regex=False)
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("[", "", regex=False)
+    website_anime_df['genre'] = website_anime_df['genre'].str.replace("]", "", regex=False)
+
+    return website_anime_df
+
+@app.route('/get_anime_titles')
+def get_anime_titles_for_searchbar():
+    return website_anime_df['name'].tolist()
 
 @app.route('/get_ids_for_recommendations')
 def get_ids_for_recommendations():
@@ -491,7 +446,7 @@ def get_hybrid_recs():
     return combined_recommendations(anime_title)
 
 def load_data():
-    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, cb_cosine_similarity, website_anime_df
+    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, website_anime_df
     global combined_category_ratings_pivot
     
     anime_df = process_anime_df()
@@ -501,9 +456,7 @@ def load_data():
     feature_weights = set_feature_weights()
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df)
-
     anime_cluster_with_pca = get_anime_clusters()
-    # cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
 
     website_anime_df = get_website_anime_df()
 
@@ -526,6 +479,8 @@ def load_data():
 
     print("Data Loaded")
 
+# ============ Update weight values and dataframes used for similarity calculations ============
+
 @app.route('/update_content_weights')
 def update_content_weights():
     global feature_weights
@@ -545,12 +500,11 @@ def update_content_weights():
     return '', 204 # Return an empty response with status code 204
 
 def update_content_dataframes():
-    global normalised_anime_df, cb_cosine_similarity, feature_weights
+    global normalised_anime_df, feature_weights
 
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
-    # cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
-
+    
     print("NEW Content Data Loaded")
     
 @app.route('/update_collaborative_weights')
@@ -688,6 +642,7 @@ def login_user():
 def logout_user():
     session.pop("user_id")
     return "200"
+
 
 if __name__ == "__main__":
     load_data()
