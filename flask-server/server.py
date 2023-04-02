@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 import sklearn as sk
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 from sklearn.metrics import mean_absolute_error
 from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
@@ -143,12 +145,12 @@ def set_feature_weights(genre_weight=0.3, members_weight=0.1, rating_weight=0.4,
 
     return feature_weights
 
-def calculate_cosine_similarity(normalised_anime_df, genres_df):
-    features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
+# def calculate_cosine_similarity(normalised_anime_df, genres_df):
+#     features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
 
-    cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
+#     cosine_sim = cosine_similarity(normalised_anime_df[features], normalised_anime_df[features])
 
-    return cosine_sim
+#     return cosine_sim
 
 # this function will return an anime_df that will be a cleaned version but will consist of 
 # columns that were originally removed as part of developing the recommender system
@@ -183,6 +185,8 @@ def get_website_anime_df():
 @app.route('/get_anime_titles')
 def get_anime_titles_for_searchbar():
     return website_anime_df['name'].tolist()
+
+
 # ============ Declaring global values/dataframes ============
 
 overall_pivot = None
@@ -234,43 +238,82 @@ def get_unique_recommendations(anime_titles):
 
     return unique_titles
 
+def get_anime_clusters():
+    global normalised_anime_df, genres_df
+
+    features = ['members_norm', 'avg_rating_norm', 'popularity_norm', 'episodes_norm'] + genres_df.columns.tolist()
+
+    pca_anime_df = normalised_anime_df[features].copy()
+
+    # perform PCA to extract principal components
+    pca = PCA(n_components=30)
+    pca_result = pca.fit_transform(pca_anime_df)
+
+    # perform K-means clustering to group similar items
+    kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+    kmeans.fit(pca_result)
+    anime_clusters_after_pca = kmeans.predict(pca_result)
+
+    return anime_clusters_after_pca
+
 # ============ Content based filtering ============
 
 
-def content_based_recommendations(title, cosine_sim, n_recommendations=100):
-    global anime_df
+# def content_based_recommendations(title, cosine_sim, n_recommendations=100):
+#     global anime_df
 
-    indices = pd.Series(anime_df.index, index=anime_df['name']).drop_duplicates()
+#     indices = pd.Series(anime_df.index, index=anime_df['name']).drop_duplicates()
     
-    # Get the index of the anime that matches the title
-    index = indices[title]
+#     # Get the index of the anime that matches the title
+#     index = indices[title]
     
-    # Get the pairwise cosine similarity scores for all anime with that index
-    sim_scores = list(enumerate(cosine_sim[index]))
+#     # Get the pairwise cosine similarity scores for all anime with that index
+#     sim_scores = list(enumerate(cosine_sim[index]))
 
-    # Sort the anime based on the similarity scores
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+#     # Sort the anime based on the similarity scores
+#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
-    # Get the top 100 most similar anime -> allows us to have more anime so that we are 
-    # still able to recommend n_recommendations animes to the user after getting all the unique titles
-    sim_scores = sim_scores[1:101]
+#     # Get the top 100 most similar anime -> allows us to have more anime so that we are 
+#     # still able to recommend n_recommendations animes to the user after getting all the unique titles
+#     sim_scores = sim_scores[1:101]
 
-    # Get the titles of the top 10 most similar anime
-    anime_indices = [i[0] for i in sim_scores]
+#     # Get the titles of the top 10 most similar anime
+#     anime_indices = [i[0] for i in sim_scores]
     
-    anime_titles = anime_df['name'].iloc[anime_indices].values.tolist()
+#     anime_titles = anime_df['name'].iloc[anime_indices].values.tolist()
 
-    # convert to set for constant lookup time
-    unique_titles = set(get_unique_recommendations(anime_titles))
+#     # convert to set for constant lookup time
+#     unique_titles = set(get_unique_recommendations(anime_titles))
 
-    recommendations = [i for i in anime_titles if i in unique_titles]
+#     recommendations = [i for i in anime_titles if i in unique_titles]
 
+#     return recommendations[:n_recommendations+1]
+
+# def get_cb_recs(anime_title):
+#     global cb_cosine_similarity
+
+#     return content_based_recommendations(anime_title, cb_cosine_similarity)
+
+def content_based_recommendations(title, data, n_recommendations=100):
+    # retrieve the index of the anime title from our main dataframe
+    # and find the cluster this anime title is in
+    anime_index = anime_df[anime_df['name'] == title].index[0]
+    anime_cluster = data[anime_index]
+
+    # gather similar anime titles within the same cluster
+    similar_anime_indexes = [i for i, cluster in enumerate(data) if cluster == anime_cluster and i != anime_index]
+    similar_anime = anime_df.iloc[similar_anime_indexes]['name'].tolist()
+
+    unique_titles = set(get_unique_recommendations(similar_anime))
+    
+    recommendations = [i for i in similar_anime if i in unique_titles]
+    
     return recommendations[:n_recommendations+1]
 
-def get_cb_recs(anime_title):
-    global normalised_anime_df, genres_df, cb_cosine_similarity
+def get_content_based_recommendations(anime_title):
+    global anime_cluster_with_pca
 
-    return content_based_recommendations(anime_title, cb_cosine_similarity)
+    return content_based_recommendations(anime_title, anime_cluster_with_pca)
 
 
 # ============ Collaborative filtering ============
@@ -357,7 +400,7 @@ def get_cf_recs(anime_title):
 def combined_recommendations(anime_name, num_recommendations=50):
     global combined_category_ratings_pivot, content_weight, collaborative_weight
     
-    content_based = get_cb_recs(anime_name)
+    content_based = get_content_based_recommendations(anime_name)
     collaborative_filtering = get_cf_recs(anime_name)
 
     # removing anime titles that may no longer exist within our dataframe as some were removed after the initial
@@ -448,7 +491,7 @@ def get_hybrid_recs():
     return combined_recommendations(anime_title)
 
 def load_data():
-    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, cb_cosine_similarity, website_anime_df
+    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, cb_cosine_similarity, website_anime_df
     global combined_category_ratings_pivot
     
     anime_df = process_anime_df()
@@ -458,7 +501,9 @@ def load_data():
     feature_weights = set_feature_weights()
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df)
-    cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+
+    anime_cluster_with_pca = get_anime_clusters()
+    # cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
 
     website_anime_df = get_website_anime_df()
 
@@ -504,7 +549,7 @@ def update_content_dataframes():
 
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
-    cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
+    # cb_cosine_similarity = calculate_cosine_similarity(normalised_anime_df, genres_df)
 
     print("NEW Content Data Loaded")
     
