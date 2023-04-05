@@ -12,6 +12,9 @@ import "../assets/css/Link.css";
 import ClipLoader from "react-spinners/ClipLoader";
 import httpClient from "./httpClient";
 
+//react-icons library is taken from 
+//https://react-icons.github.io/react-icons/
+
 function Home() {
   const [animeList, setAnimeList] = useState([]);
   const [topAnime, setTopAnime] = useState([]);

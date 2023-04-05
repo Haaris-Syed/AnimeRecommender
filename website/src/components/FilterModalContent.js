@@ -3,6 +3,9 @@ import "../assets/css/FilterModal.css";
 import ValueSlider from "./ValueSlider";
 import ClipLoader from "react-spinners/ClipLoader";
 
+// react-spinners library taken from
+// https://www.davidhu.io/react-spinners/
+
 function FilterModalContent() {
 
   const [loading, setLoading] = useState(false);

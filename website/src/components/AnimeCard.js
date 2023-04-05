@@ -3,6 +3,9 @@ import * as FiIcons from "react-icons/fi";
 import * as AiIcons from "react-icons/ai";
 import httpClient from "./httpClient";
 
+//react-icons library is taken from 
+//https://react-icons.github.io/react-icons/
+
 function AnimeCard(props) {
   const {
     anime,

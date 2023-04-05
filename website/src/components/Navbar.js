@@ -6,6 +6,9 @@ import * as GiIcons from "react-icons/gi";
 import httpClient from "./httpClient";
 import "../assets/css/Navbar.css";
 
+//react-icons library is taken from 
+//https://react-icons.github.io/react-icons/
+
 function Navbar() {
   const [user, setUser] = useState(null);
 
