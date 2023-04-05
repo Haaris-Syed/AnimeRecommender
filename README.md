@@ -1,4 +1,4 @@
-Appendix B: User Guide
+User Guide
 
 Dataset:
 
