@@ -29,13 +29,6 @@ function RecommendationInfo() {
             similarity type will be used in the overall recommendation
             algorithm.
           </p>
-          {/* <li>Overall: reflects a user's overall satisfaction of an anime</li>
-          <li>Story: reflects how good the story is of an anime.</li>
-          <li>
-            Character: reflects character development, how likeable the
-            characters are and their overall influence in an anime.
-          </li>
-          <li>Animation: reflects the animation quality of an anime</li> */}
         </h4>
         <h4>
           Once you have adjusted the values to your liking, press the "Done"

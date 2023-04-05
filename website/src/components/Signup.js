@@ -43,15 +43,14 @@ const Signup = () => {
       const password = values.password;
       const username = values.username
 
-      console.log(username)
-
       const resp = await httpClient.post("http://127.0.0.1:5000/register", {
         email,
         password,
         username
       });
-      console.log("username: ", resp.data.username)
+  
       window.location.href = "/";
+
     } catch (error) {
       if (error.response.status === 401) {
         alert("Invalid credentials");
