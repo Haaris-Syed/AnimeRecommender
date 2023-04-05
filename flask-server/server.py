@@ -8,7 +8,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from scipy.sparse import csr_matrix
-import matplotlib.pyplot as plt
 import re
 import string
 import itertools
