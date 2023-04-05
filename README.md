@@ -1,6 +1,7 @@
 Appendix B: User Guide
 
 Dataset:
+
 The source code zip does not contain the dataset used for the development of the recommendation system due to file size constraints. Please use the following link to download the two files needed for the application to work, namely “animes.csv” and “reviews.csv”. Do not download “profiles.csv” as this was not used. 
 
 Dataset:
@@ -12,6 +13,7 @@ Put the downloaded files into this folder. Your directory should look like the f
 
 
 Run the application:
+
 You will need two terminals. In the first terminal, navigate into the “flask-server” folder and create a virtual environment. The code to do this is:
 Mac/Linux: python3 -m venv venv
 Windows: python -m venv venv
