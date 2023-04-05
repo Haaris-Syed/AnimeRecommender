@@ -104,6 +104,7 @@ def get_merged_df(anime_df, user_ratings_df):
 
     return anime_with_ratings_df
 
+# hot-encoding of categorical data
 def get_genre_df(normalised_anime_df, genre_weight=0.4):
     genres_df = normalised_anime_df['genre'].str.get_dummies(sep=', ').astype(int)
     genres_df = genres_df.apply(lambda x : x * genre_weight)
@@ -141,7 +142,7 @@ def get_normalised_df():
 
     return normalised_anime_df
 
-def set_feature_weights(genre_weight=0.3, members_weight=0.1, rating_weight=0.4, popularity_weight=0.1, episodes_weight=0.1):#pass in values given by the user on the website
+def set_feature_weights(genre_weight=0.3, members_weight=0.1, rating_weight=0.4, popularity_weight=0.1, episodes_weight=0.1):
     global feature_weights
 
     total_weight = genre_weight + members_weight + rating_weight + popularity_weight + episodes_weight
@@ -344,14 +345,132 @@ def combined_recommendations(anime_name, num_recommendations=50):
     weighted_scores = scores[anime_name].sort_values(ascending=False)
     return weighted_scores.head(num_recommendations).index.tolist()
 
+@app.route("/get_hybrid_recs")
+def get_hybrid_recs():
+    anime_title = request.args.get('query')
+    
+    return combined_recommendations(anime_title)
+
+def load_data():
+    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, website_anime_df
+    global combined_category_ratings_pivot
+    
+    anime_df = process_anime_df()
+    user_ratings_df = process_ratings_df()
+    anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
+
+    feature_weights = set_feature_weights()
+    normalised_anime_df = get_normalised_df()
+    genres_df = get_genre_df(normalised_anime_df)
+    anime_cluster_with_pca = get_anime_clusters()
+
+    website_anime_df = get_website_anime_df()
+
+    print("CB Done")
+
+    rating_weights = set_rating_weights()
+    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
+    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
+    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
+    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
+    print("Pivots Done") #takes the longest to compute -> 1min approx
+    # takes roughly 35seconds now without sound and enjoyment 
+
+    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, character_pivot)
+    print("Similarities df Done")
+
+    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    animation_similarities_df, character_similarities_df)
+
+    print("Data Loaded")
+
+# ============ Update weight dataframes and values used for similarity calculations ============
+
+# ============ Update Content-based filtering dataframes and values ============
+@app.route('/update_content_weights')
+def update_content_weights():
+    global feature_weights
+
+    content_weights = request.args.get('query')
+    content_weights = content_weights.split(',')
+
+    genre_weight = float(content_weights[0])
+    members_weight = float(content_weights[1])
+    ratings_weight = float(content_weights[2])
+    popularity_weight = float(content_weights[3])
+    episodes_weight = float(content_weights[4])
+
+    feature_weights = set_feature_weights(genre_weight, members_weight, ratings_weight, popularity_weight, episodes_weight)
+    print("NEW FEATURE WEIGHTS SET")
+
+    return '', 204 # Return an empty response with status code 204
+
+def update_content_dataframes():
+    global normalised_anime_df, feature_weights
+
+    normalised_anime_df = get_normalised_df()
+    genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
+    
+    print("NEW Content Data Loaded")
+
+# ============ Update Collaborative filtering dataframes and values ============
+@app.route('/update_collaborative_weights')
+def update_collaborative_weights():
+    global rating_weights
+
+    collaborative_weights = request.args.get('query')
+    collaborative_weights = collaborative_weights.split(',')
+
+    overall_weight = float(collaborative_weights[0])
+    story_weight = float(collaborative_weights[1])
+    animation_weight = float(collaborative_weights[2])
+    character_weight = float(collaborative_weights[3])
+
+    rating_weights = set_rating_weights(overall_weight, story_weight, animation_weight, character_weight)
+    print("NEW WEIGHTS SET")
+
+    update_collaborative_dataframes()
+    print("NEW DATAFRAMES UPDATED")
+
+    return '', 204 # Return an empty response with status code 204
+
+def update_collaborative_dataframes():
+    global anime_with_ratings_df, combined_category_ratings_pivot
+
+    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
+    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
+    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
+    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
+    print("NEW Pivots Done") #takes the longest to compute -> 1min approx
+    # takes roughly 35seconds now without sound and enjoyment 
+
+    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
+    animation_pivot, character_pivot)
+    print("NEW Similarities df Done")
+
+    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
+    animation_similarities_df, character_similarities_df)
+
+    print("NEW Data Loaded")
+
+# ============ Update weights for the hybrid recommendations ============
+@app.route('/update_hybrid_weights')
+def update_hybrid_weights():
+    global content_weight, collaborative_weight
+
+    hybrid_weights = request.args.get('query')
+    hybrid_weights = hybrid_weights.split(',')
+
+    content_weight = float(hybrid_weights[0])
+    collaborative_weight = float(hybrid_weights[1])
+
+    return '', 204 # Return an empty response with status code 204
 
 # ============ Information for website functionality / displaying recommendations ============
 
 # this function will return an anime_df that will be a cleaned version but will consist of 
 # columns that were originally removed as part of developing the recommender system
-
-# the main line we are removing that differs this function from process_anime_df is:
-#  anime_df.drop(['aired', 'ranked', 'img_url', 'link'], axis=1, inplace=True)
 def get_website_anime_df():
     website_anime_df = pd.read_csv("../datasets/animes.csv")
 
@@ -435,129 +554,6 @@ def get_links_for_recommendations():
 
     return mal_link
 
-@app.route("/get_hybrid_recs")
-def get_hybrid_recs():
-    # 3mins 30seconds to execute 
-    # reduced down to approx 1 min 15 seconds using sparse matrix
-    # just under a minute to compute after removing sound and enjoyment
-
-    anime_title = request.args.get('query')
-    
-    return combined_recommendations(anime_title)
-
-def load_data():
-    global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, website_anime_df
-    global combined_category_ratings_pivot
-    
-    anime_df = process_anime_df()
-    user_ratings_df = process_ratings_df()
-    anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
-
-    feature_weights = set_feature_weights()
-    normalised_anime_df = get_normalised_df()
-    genres_df = get_genre_df(normalised_anime_df)
-    anime_cluster_with_pca = get_anime_clusters()
-
-    website_anime_df = get_website_anime_df()
-
-    print("CB Done")
-
-    rating_weights = set_rating_weights()
-    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
-    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
-    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
-    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    print("Pivots Done") #takes the longest to compute -> 1min approx
-    # takes roughly 35seconds now without sound and enjoyment 
-
-    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
-    animation_pivot, character_pivot)
-    print("Similarities df Done")
-
-    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-    animation_similarities_df, character_similarities_df)
-
-    print("Data Loaded")
-
-# ============ Update weight values and dataframes used for similarity calculations ============
-
-@app.route('/update_content_weights')
-def update_content_weights():
-    global feature_weights
-
-    content_weights = request.args.get('query')
-    content_weights = content_weights.split(',')
-
-    genre_weight = float(content_weights[0])
-    members_weight = float(content_weights[1])
-    ratings_weight = float(content_weights[2])
-    popularity_weight = float(content_weights[3])
-    episodes_weight = float(content_weights[4])
-
-    feature_weights = set_feature_weights(genre_weight, members_weight, ratings_weight, popularity_weight, episodes_weight)
-    print("NEW FEATURE WEIGHTS SET")
-
-    return '', 204 # Return an empty response with status code 204
-
-def update_content_dataframes():
-    global normalised_anime_df, feature_weights
-
-    normalised_anime_df = get_normalised_df()
-    genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
-    
-    print("NEW Content Data Loaded")
-    
-@app.route('/update_collaborative_weights')
-def update_collaborative_weights():
-    global rating_weights
-
-    collaborative_weights = request.args.get('query')
-    collaborative_weights = collaborative_weights.split(',')
-
-    overall_weight = float(collaborative_weights[0])
-    story_weight = float(collaborative_weights[1])
-    animation_weight = float(collaborative_weights[2])
-    character_weight = float(collaborative_weights[3])
-
-    rating_weights = set_rating_weights(overall_weight, story_weight, animation_weight, character_weight)
-    print("NEW WEIGHTS SET")
-
-    update_collaborative_dataframes()
-    print("NEW DATAFRAMES UPDATED")
-
-    return '', 204 # Return an empty response with status code 204
-
-def update_collaborative_dataframes():
-    global anime_with_ratings_df, combined_category_ratings_pivot
-
-    overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
-    story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
-    animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
-    character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    print("NEW Pivots Done") #takes the longest to compute -> 1min approx
-    # takes roughly 35seconds now without sound and enjoyment 
-
-    overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
-    animation_pivot, character_pivot)
-    print("NEW Similarities df Done")
-
-    combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
-    animation_similarities_df, character_similarities_df)
-
-    print("NEW Data Loaded")
-
-@app.route('/update_hybrid_weights')
-def update_hybrid_weights():
-    global content_weight, collaborative_weight
-
-    hybrid_weights = request.args.get('query')
-    hybrid_weights = hybrid_weights.split(',')
-
-    content_weight = float(hybrid_weights[0])
-    collaborative_weight = float(hybrid_weights[1])
-
-    return '', 204 # Return an empty response with status code 204
-
 # ========== USER LOGIN/AUTHENTICATION FUNCTIONS ==========
 from models import db, User
 from config import ApplicationConfig
@@ -601,7 +597,7 @@ def register_user():
     user_exists = User.query.filter_by(email=email).first() is not None
 
     if user_exists:
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"error": "User already exists, Please login with the same email."}), 409
 
     hashed_password = bcrypt.generate_password_hash(password)
     new_user = User(email=email, password=hashed_password, username=username)
@@ -644,6 +640,8 @@ def logout_user():
     return "200"
 
 
+
+# start the backend
 if __name__ == "__main__":
     load_data()
     app.run(debug=True)

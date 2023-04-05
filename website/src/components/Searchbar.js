@@ -15,6 +15,7 @@ function Searchbar(props) {
     getAnimeTitles();
   }, []);
 
+  // responsbile for providing search suggestions based on user input (not case sensitive)
   const handleFilter = (e) => {
     const searchTerm = e.target.value;
     const filteredTitles = animeTitles.filter((title) => {

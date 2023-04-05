@@ -20,6 +20,7 @@ function Home() {
   const [animeImages, setAnimeImages] = useState([]);
   const [animeLinks, setAnimeLinks] = useState([]);
 
+  // used for loading indicator
   const [loading, setLoading] = useState(false);
   let [color, setColor] = useState("#36d7b7");
 
@@ -151,6 +152,10 @@ function Home() {
 
   const [username, setUsername] = useState('')
 
+  // checks if a user is logged in
+  // The "username" variable is used as a means to confirm if a user 
+  // is logged in or not.
+  // Empty = No, Not Empty = Yes
   useEffect(() => {
     (async () => {
       try {

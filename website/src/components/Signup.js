@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import validate from "./validateInfo";
+import validate from "./ValidateInfo";
 import httpClient from "./httpClient";
 import "../assets/css/Form.css";
 
@@ -25,6 +25,8 @@ const Signup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // use our ValidateInfo component to validate the inputted fields before submitting
+    // to make sure that they are in the correct format
     setErrors(validate(values));
     setIsSubmitting(true);
   };

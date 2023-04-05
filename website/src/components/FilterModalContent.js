@@ -170,8 +170,7 @@ function FilterModalContent() {
 
   // ========== FETCH HYBRID RECOMMENDATIONS ==========
   const [contentWeightString, setContentWeightString] = useState("");
-  const [collaborativeWeightString, setCollaborativeWeightString] =
-    useState("");
+  const [collaborativeWeightString, setCollaborativeWeightString] = useState("");
 
   const updateContentWeights = async () => {
     setContentWeightString(
