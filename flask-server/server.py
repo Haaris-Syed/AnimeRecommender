@@ -537,6 +537,11 @@ def get_links_for_recommendations():
     return mal_link
 
 # ========== USER LOGIN/AUTHENTICATION FUNCTIONS ==========
+
+#Based on this Youtube video, https://www.youtube.com/watch?v=sBw0O5YTT4Q, on authentication using Flask and React, 
+#the following user authentication code was produced. Modifications were made to accommodate the needs of my website.
+#config.py and models.py were also created on the basis of this video.
+
 from models import db, User
 from config import ApplicationConfig
 from flask_bcrypt import Bcrypt
