@@ -251,13 +251,13 @@ def set_rating_weights(overall_weight=0.5, story_weight=0.3, animation_weight=0.
 
     return rating_weights
     
+# creates our user-item matrices needed to compute similarity
 def create_pivot_table(data, value):
     pivot_table = data.pivot_table(index='user_id', columns='name', values=value)
     pivot_table.fillna(0, inplace=True)
 
     return pivot_table
 
-# only need to calculate once for each ratings pivot table
 def calculate_similarities(pivot_table):
     sparse_pivot = csr_matrix(pivot_table)
     similarities = cosine_similarity(sparse_pivot.T)
@@ -265,7 +265,6 @@ def calculate_similarities(pivot_table):
 
     return similarities_df
 
-# only need to calculate once
 def create_pivots_for_rating_categories():
     global anime_with_ratings_df
 
@@ -276,7 +275,6 @@ def create_pivots_for_rating_categories():
 
     return overall_pivot, story_pivot, animation_pivot, character_pivot
 
-# only need to calculate once
 def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_pivot, character_pivot):
 
     overall_similarities_df = calculate_similarities(overall_pivot)
@@ -286,7 +284,6 @@ def get_similarities_for_category_ratings(overall_pivot, story_pivot, animation_
 
     return overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df
 
-# only need to calculate once
 def create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
 animation_similarities_df, character_similarities_df):
     global rating_weights
@@ -355,39 +352,32 @@ def load_data():
     global anime_df, user_ratings_df, anime_with_ratings_df, normalised_anime_df, genres_df, anime_cluster_with_pca, website_anime_df
     global combined_category_ratings_pivot
     
+    # content-based dataframes
     anime_df = process_anime_df()
     user_ratings_df = process_ratings_df()
     anime_with_ratings_df = get_merged_df(anime_df, user_ratings_df)
-
     feature_weights = set_feature_weights()
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df)
     anime_cluster_with_pca = get_anime_clusters()
 
-    website_anime_df = get_website_anime_df()
-
-    print("CB Done")
-
+    # collaborative based dataframes
     rating_weights = set_rating_weights()
     overall_pivot = create_pivot_table(anime_with_ratings_df, 'Overall')
     story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
     character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    print("Pivots Done") #takes the longest to compute -> 1min approx
-    # takes roughly 35seconds now without sound and enjoyment 
-
     overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
     animation_pivot, character_pivot)
-    print("Similarities df Done")
-
     combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
     animation_similarities_df, character_similarities_df)
 
-    print("Data Loaded")
+    # generic dataframes
+    website_anime_df = get_website_anime_df()
 
 # ============ Update weight dataframes and values used for similarity calculations ============
 
-# ============ Update Content-based filtering dataframes and values ============
+# ======= Update Content-based filtering dataframes and values =======
 @app.route('/update_content_weights')
 def update_content_weights():
     global feature_weights
@@ -402,7 +392,6 @@ def update_content_weights():
     episodes_weight = float(content_weights[4])
 
     feature_weights = set_feature_weights(genre_weight, members_weight, ratings_weight, popularity_weight, episodes_weight)
-    print("NEW FEATURE WEIGHTS SET")
 
     return '', 204 # Return an empty response with status code 204
 
@@ -412,9 +401,8 @@ def update_content_dataframes():
     normalised_anime_df = get_normalised_df()
     genres_df = get_genre_df(normalised_anime_df, feature_weights['genre'])
     
-    print("NEW Content Data Loaded")
 
-# ============ Update Collaborative filtering dataframes and values ============
+# ======= Update Collaborative filtering dataframes and values =======
 @app.route('/update_collaborative_weights')
 def update_collaborative_weights():
     global rating_weights
@@ -428,10 +416,8 @@ def update_collaborative_weights():
     character_weight = float(collaborative_weights[3])
 
     rating_weights = set_rating_weights(overall_weight, story_weight, animation_weight, character_weight)
-    print("NEW WEIGHTS SET")
 
     update_collaborative_dataframes()
-    print("NEW DATAFRAMES UPDATED")
 
     return '', 204 # Return an empty response with status code 204
 
@@ -442,17 +428,13 @@ def update_collaborative_dataframes():
     story_pivot = create_pivot_table(anime_with_ratings_df, 'Story')
     animation_pivot = create_pivot_table(anime_with_ratings_df, 'Animation')
     character_pivot = create_pivot_table(anime_with_ratings_df, 'Character')
-    print("NEW Pivots Done") #takes the longest to compute -> 1min approx
-    # takes roughly 35seconds now without sound and enjoyment 
 
     overall_similarities_df, story_similarities_df, animation_similarities_df, character_similarities_df = get_similarities_for_category_ratings(overall_pivot, story_pivot, 
     animation_pivot, character_pivot)
-    print("NEW Similarities df Done")
 
     combined_category_ratings_pivot = create_category_ratings_pivot(overall_similarities_df, story_similarities_df, 
     animation_similarities_df, character_similarities_df)
 
-    print("NEW Data Loaded")
 
 # ============ Update weights for the hybrid recommendations ============
 @app.route('/update_hybrid_weights')
