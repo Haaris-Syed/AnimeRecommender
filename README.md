@@ -44,8 +44,12 @@ Finally, you can start the front end using “npm start”. This will launch the
 If you are not familiar with anime, here are some anime titles you can use to get recommendations for:
 
 Death Note
+
 Fullmetal Alchemist Brotherhood
+
 One Punch Man
+
 Tokyo Ghoul
+
 Sword Art Online
 
