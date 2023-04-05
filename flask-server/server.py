@@ -626,6 +626,6 @@ def logout_user():
 # start the backend
 if __name__ == "__main__":
     load_data()
-    app.run(debug=True)
+    app.run()
 
 
