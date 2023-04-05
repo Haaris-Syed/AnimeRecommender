@@ -41,13 +41,6 @@ function Navbar() {
         <GiIcons.GiBrain className="gi-brain" />
       </h1>
       <ul className="nav-menu">
-        {/* <Link
-          className="saved-anime"
-          to="/saved"
-          state={JSON.parse(localStorage.getItem("savedAnimeList"))}
-        >
-          View Saved
-        </Link> */}
         {user != null ? (
           <>
             {LoggedInMenuItems.map((item, index) => {
