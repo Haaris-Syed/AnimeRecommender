@@ -39,4 +39,13 @@ Next, look in the “package.json” file. You will see the following line:
 
 This is the URL of my local host for my backend, running on port 5000. If your local host is running on a different port, please change the string value to match the URL of your local host. You can find the local host URL in the first terminal used to run the backend when the server is running. The line “Running on “http://127.0.0.1:5000” will be displayed, where your local host may be different. Use the URL displayed as the proxy value.
 
-Finally, you can start the front end using “npm start”. This will launch the website where you can interact and explore the content to your liking.
+Finally, you can start the front end using “npm start”. This will launch the website where you can interact and explore the content to your liking. Make sure the server is fully up and running, with the data preloaded, before launching the website. If the server is not yet ready, refresh the website page once it is and the functionality will work as expected.
+
+If you are not familiar with anime, here are some anime titles you can use to get recommendations for:
+
+Death Note
+Fullmetal Alchemist Brotherhood
+One Punch Man
+Tokyo Ghoul
+Sword Art Online
+
