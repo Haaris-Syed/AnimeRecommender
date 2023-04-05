@@ -26,7 +26,7 @@ function Navbar() {
         setUser(resp.data.id);
 
       } catch (error) {
-        console.log("Not Authenticated");
+        
       }
     })();
   }, []);

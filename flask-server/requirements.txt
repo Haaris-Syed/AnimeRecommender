@@ -1,7 +1,11 @@
 flask
 flask-sqlalchemy
 flask-bcrypt
-python-dotenv
-flask-session
-redis
 flask-cors
+flask-session
+python-dotenv
+redis
+pandas
+numpy
+scikit-learn
+matplotlib

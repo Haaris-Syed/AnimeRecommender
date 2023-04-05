@@ -19,7 +19,7 @@ function SavedAnime() {
         setUsername(resp.data.username);
 
       } catch (error) {
-        console.log("Not Authenticated");
+        
       }
     })();
   }, []);
