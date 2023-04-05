@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { MenuItems } from "./MenuItems";
 import { LoggedInMenuItems } from "./LoggedInMenuItems";
 import { Button } from "./Button";
-import { Link } from "react-router-dom";
 import * as GiIcons from "react-icons/gi";
 import httpClient from "./httpClient";
 import "../assets/css/Navbar.css";
