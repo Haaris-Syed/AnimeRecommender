@@ -41,7 +41,7 @@ This is the URL of my local host for my backend, running on port 5000. If your l
 
 Finally, you can start the front end using “npm start”. This will launch the website where you can interact and explore the content to your liking. Make sure the server is fully up and running, with the data preloaded, before launching the website. If the server is not yet ready, refresh the website page once it is and the functionality will work as expected.
 
-If you are not familiar with anime, here are some anime titles you can use to get recommendations for:
+If you are not familiar with anime, here are some anime titles to get you started that you can use to get recommendations:
 
 - Death Note
 
